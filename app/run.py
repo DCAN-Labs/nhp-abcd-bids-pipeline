@@ -65,7 +65,7 @@ def generate_parser(parser=None):
     """
     if not parser:
         parser = argparse.ArgumentParser(
-            prog='dcan-pipelines',
+            prog='nhp-abcd-bids-pipeline',
             description=__doc__,
             formatter_class=argparse.RawDescriptionHelpFormatter,
             epilog=__references__
