@@ -251,6 +251,7 @@ def get_taskname(filename):
     taskname = task.group(1)
     return taskname
 
+
 def get_contrast_agent(filename):
     """
     :param filename: path to bids functional nifti
@@ -266,7 +267,6 @@ def get_contrast_agent(filename):
     return cename
 
 
-
 def ijk_to_xyz(vec, patient_orientation=None):
     """
     converts canonical quaternion unit vector symbols to cartesian.
@@ -277,3 +277,18 @@ def ijk_to_xyz(vec, patient_orientation=None):
             'i-': 'x-', 'j-': 'y-', 'k-': 'z-',
             '-i': 'x-', '-j': 'y-', '-k': 'z-'}
     return vmap[vec]
+
+
+def validate_license(freesurfer_license):
+    fshome = os.environ['FREESURFER_HOME']
+    license_txt = os.path.join(fshome, 'license.txt')
+    if freesurfer_license is None:
+        assert os.path.exists(license_txt), \
+            'freesurfer license.txt not located. You can provide a license ' \
+            'file using the --freesurfer-license <LICENSE> argument.'
+    elif os.path.normpath(license_txt) == os.path.normpath(freesurfer_license):
+        pass
+    else:
+        import shutil
+        shutil.copy(freesurfer_license, license_txt)
+
