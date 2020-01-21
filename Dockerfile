@@ -23,7 +23,7 @@ RUN git clone -b 'v0.0.1' --single-branch --depth 1 https://github.com/DCAN-Labs
 ENV OMP_NUM_THREADS=1
 ENV SCRATCHDIR=/tmp/scratch
 ENV ITK_GLOBAL_DEFAULT_NUMBER_OF_THREADS=1
-ENV TMPDIR=/tmp
+ENV TMPDIR=/tmp 
 
 # setup ENTRYPOINT
 COPY ["./entrypoint.sh", "/entrypoint.sh"]
