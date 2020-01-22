@@ -30,7 +30,7 @@ __version__ = "0.0.0"
 import argparse
 import os
 
-from helpers import read_bids_dataset
+from helpers import read_bids_dataset, validate_license
 from pipelines import (ParameterSettings, PreliminaryMasking, PreFreeSurfer,
                        FreeSurfer, PostFreeSurfer, FMRIVolume, FMRISurface,
                        DCANBOLDProcessing, ExecutiveSummary, CustomClean)
@@ -54,7 +54,8 @@ def _cli():
                      args.check_outputs_only, args.study_template,
                      args.cleaning_json, args.print,
                      args.ignore_expected_outputs, args.multi_template_dir,
-                     args.norm_method, args.registration_assist)
+                     args.norm_method, args.registration_assist,
+                     args.freesurfer_license)
 
 
 def generate_parser(parser=None):
@@ -68,7 +69,10 @@ def generate_parser(parser=None):
             prog='nhp-abcd-bids-pipeline',
             description=__doc__,
             formatter_class=argparse.RawDescriptionHelpFormatter,
-            epilog=__references__
+            epilog=__references__,
+            usage='%(prog)s bids_dir output_dir --freesurfer-license=<LICENSE>'
+                  ' [OPTIONS]'
+
         )
     parser.add_argument(
         'bids_dir',
@@ -106,6 +110,14 @@ def generate_parser(parser=None):
         help='number of cores to use for concurrent processing and '
              'algorithmic speedups.  Warning: causes ANTs and FreeSurfer to '
              'produce non-deterministic results.'
+    )
+    parser.add_argument(
+        '--freesurfer-license', dest='freesurfer_license',
+        metavar='LICENSE_FILE',
+        help='If using docker or singularity, you will need to acquire and '
+             'provide your own FreeSurfer license. The license can be '
+             'acquired by filling out this form: '
+             'https://surfer.nmr.mgh.harvard.edu/registration.html'
     )
     parser.add_argument(
         '--stage',
@@ -203,7 +215,7 @@ def interface(bids_dir, output_dir, subject_list=None, session_list=None, collec
               start_stage=None, bandstop_params=None, max_cortical_thickness=5, check_only=False,
               study_template=None, cleaning_json=None, print_commands=False,
               ignore_expected_outputs=False, multi_template_dir=None,
-              norm_method=None, registration_assist=None):
+              norm_method=None, registration_assist=None, freesurfer_license=None):
     """
     main application interface
     :param bids_dir: input bids dataset see "helpers.read_bids_dataset" for
@@ -224,6 +236,9 @@ def interface(bids_dir, output_dir, subject_list=None, session_list=None, collec
     :param norm_method: which method will be used for hyper-normalization step.
     :return:
     """
+
+    if not check_only or not print_commands:
+        validate_license(freesurfer_license)
 
     # read from bids dataset
     assert os.path.isdir(bids_dir), bids_dir + ' is not a directory!'
