@@ -32,4 +32,5 @@ ENTRYPOINT ["/entrypoint.sh"]
 WORKDIR /
 CMD ["--help"]
 
+ENV HOME=/opt/
 
