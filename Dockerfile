@@ -1,4 +1,4 @@
-FROM dcanlabs/internal-tools
+FROM dcanlabs/internal-tools:v1.0.0
 
 RUN apt-get update && apt-get install -yq --no-install-recommends \
         apt-utils \
@@ -32,4 +32,5 @@ ENTRYPOINT ["/entrypoint.sh"]
 WORKDIR /
 CMD ["--help"]
 
+ENV HOME=/opt/
 
