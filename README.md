@@ -72,6 +72,7 @@ usage: nhp-abcd-bids-pipeline [-h] [--version]
                               [--t1-brain-mask T1_BRAIN_MASK]
                               [--t2-brain-mask T2_BRAIN_MASK]
                               [--study-template HEAD BRAIN]
+                              [--use-ants-reg]
                               [--check-outputs-only] [--print-commands-only]
                               [--ignore-expected-outputs]
                               [--multi-template-dir MULTI_TEMPLATE_DIR]
@@ -146,6 +147,9 @@ optional arguments:
                         differences in male/female and in separate age
                         categories, or for differences in anatomical field of
                         view. Default is to use the Yerkes19 Template.
+  --use-ants-reg        perform ANTs-based intermediate registration of
+                        anatomical images to study template prior to
+                        registration to standard template (Yerkes19).
   --multi-template-dir MULTI_TEMPLATE_DIR
                         directory for joint label fusion templates. It should
                         contain only folders which each contain a

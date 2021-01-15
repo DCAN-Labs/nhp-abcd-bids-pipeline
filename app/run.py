@@ -60,6 +60,7 @@ def _cli():
                      args.t1_brain_mask,
                      args.t2_brain_mask,
                      args.study_template,
+                     args.useAntsReg,
                      args.cleaning_json,
                      args.print,
                      args.ignore_expected_outputs,
@@ -192,6 +193,12 @@ def generate_parser(parser=None):
              'in anatomical field of view. Default is to use the Yerkes19 '
              'Template.'
     )
+    parser.add_argument(
+        '--use-ants-reg', dest='useAntsReg', action='store_true',
+        help='perform ANTs-based intermediate registration of'
+            'anatomical images to study template prior to'
+            'registration to standard template (Yerkes19).'
+    )
     runopts = parser.add_argument_group(
         'runtime options',
         description='special changes to runtime behaviors. Debugging features.'
@@ -240,9 +247,10 @@ def generate_parser(parser=None):
 
 def interface(bids_dir, output_dir, subject_list=None, session_list=None, collect=False, ncpus=1,
               start_stage=None, bandstop_params=None, max_cortical_thickness=5, check_only=False,
-              t1_brain_mask=None, t2_brain_mask=None, study_template=None, cleaning_json=None,
-              print_commands=False, ignore_expected_outputs=False, multi_template_dir=None,
-              norm_method=None, registration_assist=None, freesurfer_license=None):
+              t1_brain_mask=None, t2_brain_mask=None, study_template=None, useAntsReg=False,
+              cleaning_json=None, print_commands=False, ignore_expected_outputs=False, 
+              multi_template_dir=None, norm_method=None, registration_assist=None, 
+              freesurfer_license=None):
     """
     main application interface
     :param bids_dir: input bids dataset see "helpers.read_bids_dataset" for
@@ -260,7 +268,8 @@ def interface(bids_dir, output_dir, subject_list=None, session_list=None, collec
     :param t1_brain_mask: specify mask to use instead of letting PreFreeSurfer create it.
     :param t2_brain_mask: specify mask to use instead of letting PreFreeSurfer create it.
     :param sshead: study specific template head for brain masking
-    :param sshead: study specific template brain for brain masking
+    :param ssbrain: study specific template brain for brain masking
+    :param useAntsReg: ANTs-based intermediate registration to study template
     :param multi_template_dir: directory of joint label fusion atlases
     :param norm_method: which method will be used for hyper-normalization step.
     :return:
@@ -292,16 +301,16 @@ def interface(bids_dir, output_dir, subject_list=None, session_list=None, collec
             session_spec.set_hypernormalization_method("ADULT_GM_IP")
         else:
             session_spec.set_hypernormalization_method(norm_method)
+        if useAntsReg is not False:
+            session_spec.set_use_ants_reg(useAntsReg)
         if t1_brain_mask is not None:
             session_spec.set_t1_brain_mask(t1_brain_mask)
         if t2_brain_mask is not None:
             session_spec.set_t2_brain_mask(t2_brain_mask)
         if study_template is not None:
             session_spec.set_study_templates(*study_template)
-
         if multi_template_dir is not None:
             session_spec.set_templates_dir(multi_template_dir)
-
         if max_cortical_thickness is not 5:
             session_spec.set_max_cortical_thickness(max_cortical_thickness)
 
