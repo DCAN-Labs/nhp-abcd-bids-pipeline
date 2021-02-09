@@ -620,6 +620,8 @@ class PreliminaryMasking(Stage):
     spec = ' --path={path}' \
            ' --t1 {t1}' \
            ' --t2 {t2}' \
+           ' --t1brainmask={t1_brain_mask}' \
+           ' --t2brainmask={t2_brain_mask}' \
            ' --func={func}' \
            ' --fmapmag={fmapmag}' \
            ' --sshead={studytemplate}' \
