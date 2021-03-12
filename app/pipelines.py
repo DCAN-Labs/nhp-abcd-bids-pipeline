@@ -103,12 +103,7 @@ class ParameterSettings(object):
     # cont frames
     contiguous_frames = 5
     # maximum cortical thickness for FreeSurfer
-    max_cortical_thickness = 5
-    # aseg file
-    aseg = "DEFAULT"
-    asegdir = ""
-
-    
+    max_cortical_thickness = 5   
 
     def __init__(self, bids_data, output_directory):
         """
@@ -204,6 +199,8 @@ class ParameterSettings(object):
         self.multitemplatedir = None
         self.sshead = None
         self.ssbrain = None
+        self.aseg = "DEFAULT"
+        self.asegdir = ""
 
         # ANTs intermediate reg to study template
         self.useAntsReg = 'false'
@@ -709,8 +706,8 @@ class PreFreeSurfer(Stage):
                 self._get_intended_sefmaps()
         else:
             self.kwargs['sephasepos'] = self.kwargs['sephaseneg'] = None
-        if config.aseg is not "DEFAULT":
-            self.kwargs['asegdir'] = os.path.dirname(config.aseg)
+        if self.kwargs['aseg'] != "DEFAULT":
+            self.kwargs['asegdir'] = os.path.dirname(self.kwargs['aseg'])
     def _get_intended_sefmaps(self):
         """
         search for IntendedFor field from sidecar json, else give the first
@@ -772,11 +769,9 @@ class FreeSurfer(Stage):
             self.kwargs['freesurferdir'], 'T1w_acpc_dc_restore_brain.nii.gz')
         self.kwargs['t2_restore'] = os.path.join(
             self.kwargs['freesurferdir'], 'T2w_acpc_dc_restore.nii.gz')
-        if config.aseg is "DEFAULT":
+        if self.kwargs['aseg'] == "DEFAULT":
             self.kwargs['aseg'] = os.path.join(
                     self.kwargs['freesurferdir'], 'aseg_acpc.nii.gz')
-        else:
-            self.kwargs['aseg'] = os.path.abspath(config.aseg)
 
     @property
     def args(self):

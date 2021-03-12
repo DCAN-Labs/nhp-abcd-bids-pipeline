@@ -255,7 +255,7 @@ def generate_parser(parser=None):
     return parser
 
 
-def interface(bids_dir, output_dir, subject_list=None, session_list=None, aseg="DEFAULT",
+def interface(bids_dir, output_dir, subject_list=None, session_list=None, aseg=None,
               collect=False, ncpus=1, start_stage=None, bandstop_params=None,
               max_cortical_thickness=5, check_only=False, t1_brain_mask=None, t2_brain_mask=None,
               study_template=None, useAntsReg=False, cleaning_json=None, print_commands=False,
@@ -307,7 +307,9 @@ def interface(bids_dir, output_dir, subject_list=None, session_list=None, aseg="
         )
         session_spec = ParameterSettings(session, out_dir)
 
-        if aseg is not None:
+        if aseg is None:
+            session_spec.set_aseg("DEFAULT")
+        else:
             session_spec.set_aseg(aseg)
         if norm_method is None:
             # Use default: ADULT_GM_IP.
