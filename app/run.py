@@ -313,8 +313,6 @@ def interface(bids_dir, output_dir, subject_list=None, session_list=None, aseg=N
         else:
             session_spec.set_aseg(aseg)
             session_spec.set_asegdir(os.path.dirname(aseg))
-        else:
-            session_spec.set_aseg(aseg)
         if norm_method is None:
             # Use default: ADULT_GM_IP.
             session_spec.set_hypernormalization_method("ADULT_GM_IP")
