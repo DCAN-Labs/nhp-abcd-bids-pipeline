@@ -105,8 +105,8 @@ class ParameterSettings(object):
     # maximum cortical thickness for FreeSurfer
     max_cortical_thickness = 5   
     # aseg file
-#    aseg = "DEFAULT"
-#    asegdir = ""
+    aseg = None
+    asegdir = None
 
     def __init__(self, bids_data, output_directory):
         """
@@ -714,7 +714,6 @@ class PreFreeSurfer(Stage):
                 self._get_intended_sefmaps()
         else:
             self.kwargs['sephasepos'] = self.kwargs['sephaseneg'] = None
-        print(self.kwargs['aseg'])
         if self.kwargs['aseg'] is None:
             self.kwargs['asegdir'] = self.kwargs['t1w_path']
         else:
@@ -781,10 +780,9 @@ class FreeSurfer(Stage):
             self.kwargs['freesurferdir'], 'T1w_acpc_dc_restore_brain.nii.gz')
         self.kwargs['t2_restore'] = os.path.join(
             self.kwargs['freesurferdir'], 'T2w_acpc_dc_restore.nii.gz')
-        print(self.kwargs['aseg'])
         if self.kwargs['aseg'] is None:
             self.kwargs['aseg'] = os.path.join(
-                    self.kwargs['freesurferdir'], 'aseg_acpc.nii.gz')
+                self.kwargs['freesurferdir'], 'aseg_acpc.nii.gz')
 
     @property
     def args(self):
