@@ -707,6 +707,8 @@ class PreFreeSurfer(Stage):
 
     def __init__(self, config):
         super(__class__, self).__init__(config)
+        self.kwargs['freesurferdir'] = os.path.join(
+            self.kwargs['path'], 'T1w')
         # modify t1/t2 inputs for spec
         self.kwargs['t1'] = '@'.join(self.kwargs.get('t1w'))
         self.kwargs['t2'] = '@'.join(self.kwargs.get('t2w', []))
