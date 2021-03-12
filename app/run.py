@@ -308,7 +308,7 @@ def interface(bids_dir, output_dir, subject_list=None, session_list=None, aseg=N
         session_spec = ParameterSettings(session, out_dir)
 
         if aseg is None:
-            session_spec.set_aseg("DEFAULT")
+            session_spec.set_aseg("_DEFAULT_")
         else:
             session_spec.set_aseg(aseg)
         if norm_method is None:

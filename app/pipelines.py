@@ -706,8 +706,11 @@ class PreFreeSurfer(Stage):
                 self._get_intended_sefmaps()
         else:
             self.kwargs['sephasepos'] = self.kwargs['sephaseneg'] = None
-        if self.kwargs['aseg'] != "DEFAULT":
-            self.kwargs['asegdir'] = os.path.dirname(self.kwargs['aseg'])
+        if config.aseg is not "DEFAULT":
+            self.kwargs['asegdir'] = os.path.dirname(config.aseg)
+        else:
+            self.kwargs['asegdir'] = self.kwargs['freesurferdir']
+
     def _get_intended_sefmaps(self):
         """
         search for IntendedFor field from sidecar json, else give the first
@@ -769,7 +772,7 @@ class FreeSurfer(Stage):
             self.kwargs['freesurferdir'], 'T1w_acpc_dc_restore_brain.nii.gz')
         self.kwargs['t2_restore'] = os.path.join(
             self.kwargs['freesurferdir'], 'T2w_acpc_dc_restore.nii.gz')
-        if self.kwargs['aseg'] == "DEFAULT":
+        if config.aseg is "DEFAULT":
             self.kwargs['aseg'] = os.path.join(
                     self.kwargs['freesurferdir'], 'aseg_acpc.nii.gz')
 
