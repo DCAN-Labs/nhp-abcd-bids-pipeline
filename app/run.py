@@ -307,6 +307,8 @@ def interface(bids_dir, output_dir, subject_list=None, session_list=None, aseg=N
         )
         session_spec = ParameterSettings(session, out_dir)
         print("run.py aseg: " + str(aseg))
+        print("run.py norm_method: " + str(norm_method))
+        print("run.py t1_brain_mask: " + str(t1_brain_mask))
         if aseg is not None:
             session_spec.set_aseg(aseg)
             session_spec.set_asegdir(os.path.dirname(aseg))
