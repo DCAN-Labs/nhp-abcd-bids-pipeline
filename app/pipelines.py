@@ -717,6 +717,7 @@ class PreFreeSurfer(Stage):
                 self._get_intended_sefmaps()
         else:
             self.kwargs['sephasepos'] = self.kwargs['sephaseneg'] = None
+        print(config.aseg)
  #       if config.aseg is "DEFAULT":
  #           self.kwargs['asegdir'] = self.kwargs['t1w_path']
  #       else:
@@ -783,6 +784,7 @@ class FreeSurfer(Stage):
             self.kwargs['freesurferdir'], 'T1w_acpc_dc_restore_brain.nii.gz')
         self.kwargs['t2_restore'] = os.path.join(
             self.kwargs['freesurferdir'], 'T2w_acpc_dc_restore.nii.gz')
+        print(config.aseg)
 #        if config.aseg is "DEFAULT":
 #            self.kwargs['aseg'] = os.path.join(
 #                    self.kwargs['freesurferdir'], 'aseg_acpc.nii.gz')
