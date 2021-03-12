@@ -707,7 +707,7 @@ class PreFreeSurfer(Stage):
 
     def __init__(self, config):
         super(__class__, self).__init__(config)
-        self.kwargs['freesurferdir'] = os.path.join(
+        self.kwargs['t1w_path'] = os.path.join(
             self.kwargs['path'], 'T1w')
         # modify t1/t2 inputs for spec
         self.kwargs['t1'] = '@'.join(self.kwargs.get('t1w'))
@@ -717,10 +717,10 @@ class PreFreeSurfer(Stage):
                 self._get_intended_sefmaps()
         else:
             self.kwargs['sephasepos'] = self.kwargs['sephaseneg'] = None
-        if config.aseg is not "DEFAULT":
-            self.kwargs['asegdir'] = os.path.dirname(config.aseg)
-        else:
-            self.kwargs['asegdir'] = self.kwargs['freesurferdir']
+ #       if config.aseg is "DEFAULT":
+ #           self.kwargs['asegdir'] = self.kwargs['t1w_path']
+ #       else:
+ #           self.kwargs['asegdir'] = os.path.dirname(config.aseg)
 
     def _get_intended_sefmaps(self):
         """
@@ -783,9 +783,9 @@ class FreeSurfer(Stage):
             self.kwargs['freesurferdir'], 'T1w_acpc_dc_restore_brain.nii.gz')
         self.kwargs['t2_restore'] = os.path.join(
             self.kwargs['freesurferdir'], 'T2w_acpc_dc_restore.nii.gz')
-        if config.aseg is "DEFAULT":
-            self.kwargs['aseg'] = os.path.join(
-                    self.kwargs['freesurferdir'], 'aseg_acpc.nii.gz')
+#        if config.aseg is "DEFAULT":
+#            self.kwargs['aseg'] = os.path.join(
+#                    self.kwargs['freesurferdir'], 'aseg_acpc.nii.gz')
 
     @property
     def args(self):
