@@ -105,8 +105,8 @@ class ParameterSettings(object):
     # maximum cortical thickness for FreeSurfer
     max_cortical_thickness = 5   
     # aseg file
-    aseg = "DEFAULT"
-    asegdir = ""
+#    aseg = "DEFAULT"
+#    asegdir = ""
 
     def __init__(self, bids_data, output_directory):
         """

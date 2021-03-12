@@ -306,7 +306,7 @@ def interface(bids_dir, output_dir, subject_list=None, session_list=None, aseg="
             'ses-%s' % session['session']
         )
         session_spec = ParameterSettings(session, out_dir)
-
+        print("run.py aseg: " + aseg)
         if aseg is not None:
             session_spec.set_aseg(aseg)
             session_spec.set_asegdir(os.path.dirname(aseg))
