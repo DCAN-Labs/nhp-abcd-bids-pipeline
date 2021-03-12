@@ -106,6 +106,7 @@ class ParameterSettings(object):
     max_cortical_thickness = 5
     # aseg file
     aseg = "DEFAULT"
+    asegdir = ""
 
     
 
@@ -387,7 +388,7 @@ class Stage(object):
 
     attributes:
     config: ParameterSettings object.
-    kwargs: dict of attributes returned from ParamterSettings object.
+    kwargs: dict of attributes returned from ParameterSettings object.
 
     abstract methods which require overriding:
     script: script / tool / executable to run as a subprocess.
