@@ -83,6 +83,11 @@ class ParameterSettings(object):
     # freesurfer default normalization method
     norm_method = 'ADULT_GM_IP'
 
+    # default scale factors for standard deviation of normalized gm, wm, csf relative to normalization template
+    norm_gm_std_dev_scale = 1
+    norm_wm_std_dev_scale = 1
+    norm_csf_std_dev_scale = 1
+
     # @ bold processing defaults @ #
     # brain radius of subject set
     brain_radius = 50
@@ -276,9 +281,15 @@ class ParameterSettings(object):
         :return: None
         """
         self['multitemplatedir'] = multi_template_dir
-
+    
     def set_hypernormalization_method(self, norm_method):
         self.norm_method = norm_method
+    def set_norm_gm_std_dev_scale(self, value):
+        self.norm_gm_std_dev_scale = value
+    def set_norm_wm_std_dev_scale(self, value):
+        self.norm_wm_std_dev_scale = value
+    def set_norm_csf_std_dev_scale(self, value):
+        self.norm_csf_std_dev_scale = value
 
     def set_max_cortical_thickness(self, value):
         # Set the value to send to FreeSurfer.
@@ -768,6 +779,9 @@ class FreeSurfer(Stage):
            ' --aseg={aseg}' \
            ' --gca={gca}' \
            ' --maxThickness={max_cortical_thickness}' \
+           ' --normgmstddevscale={normgmstddevscale}' \
+           ' --normwmstddevscale={normgmstddevscale}' \
+           ' --normcsfstddevscale={normgmstddevscale}' \
            ' --printcom={printcom}'
 
     def __init__(self, config):
