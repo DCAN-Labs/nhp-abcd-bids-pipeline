@@ -176,6 +176,28 @@ optional arguments:
                         step. This allows the user to run PreFreeSurfer, apply
                         new, experimental hyper-normalization methods and then
                         restart at FreeSurfer. Default: ADULT_GM_IP.
+    --norm-gm-std-dev-scale SCALE_FACTOR
+                        specify, as a floating-point number, the scaling factor
+                        for the standard deviation of GM voxels in the 
+                        hypernormalized FreeSurfer T1w image relative to the
+                        standard deviation of the adult reference image.
+                        Reducing the standard deviation of GM voxels
+                        may remedy issues with poor surface generation in
+                        FreeSurfer when T1w contrast in cortical GM is uneven
+                        or weak near the pial surface. Default = 1.
+    --norm-wm-std-dev-scale SCALE_FACTOR
+                        specify, as a floating-point number, the scaling factor
+                        for the standard deviation of WM voxels in the 
+                        hypernormalized FreeSurfer T1w image relative to the
+                        standard deviation of the adult reference image.
+                        Default = 1.
+    --norm-csf-std-dev-scale SCALE_FACTOR
+                        specify, as a floating-point number, the scaling factor
+                        for the standard deviation of GM voxels in the 
+                        hypernormalized FreeSurfer T1w image relative to the
+                        standard deviation of the adult reference image.
+                        This option has no effect when used with ADULT_GM_IP
+                        hypernormalization. Default = 1.
 
 special pipeline options:
   options which pertain to an alternative pipeline or an extra stage which is not
