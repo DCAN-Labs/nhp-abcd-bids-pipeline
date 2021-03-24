@@ -343,9 +343,9 @@ def interface(bids_dir, output_dir, aseg=None, subject_list=None, session_list=N
         if norm_gm_std_dev_scale is not 1:
             session_spec.set_norm_gm_std_dev_scale(norm_gm_std_dev_scale)
         if norm_wm_std_dev_scale is not 1:
-            session_spec.set_norm_gm_std_dev_scale(norm_wm_std_dev_scale)
+            session_spec.set_norm_wm_std_dev_scale(norm_wm_std_dev_scale)
         if norm_csf_std_dev_scale is not 1:
-            session_spec.set_norm_gm_std_dev_scale(norm_csf_std_dev_scale)
+            session_spec.set_norm_csf_std_dev_scale(norm_csf_std_dev_scale)
         if useAntsReg is not False:
             session_spec.set_use_ants_reg(useAntsReg)
         if t1_brain_mask is not None:
