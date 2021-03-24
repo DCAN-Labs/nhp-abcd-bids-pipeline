@@ -780,8 +780,8 @@ class FreeSurfer(Stage):
            ' --gca={gca}' \
            ' --maxThickness={max_cortical_thickness}' \
            ' --normgmstddevscale={norm_gm_std_dev_scale}' \
-           ' --normwmstddevscale={norm_gm_std_dev_scale}' \
-           ' --normcsfstddevscale={norm_gm_std_dev_scale}' \
+           ' --normwmstddevscale={norm_wm_std_dev_scale}' \
+           ' --normcsfstddevscale={norm_csf_std_dev_scale}' \
            ' --printcom={printcom}'
 
     def __init__(self, config):
