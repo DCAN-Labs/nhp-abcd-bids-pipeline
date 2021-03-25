@@ -83,10 +83,17 @@ class ParameterSettings(object):
     # freesurfer default normalization method
     norm_method = 'ADULT_GM_IP'
 
-    # default scale factors for standard deviation of normalized gm, wm, csf relative to normalization template
+    # default scale factors for standard deviation of normalized gm, wm, csf 
+    # relative to normalization template
     norm_gm_std_dev_scale = 1
     norm_wm_std_dev_scale = 1
     norm_csf_std_dev_scale = 1
+
+    # create pial surfaces in FreeSurfer with a single pass of mris_make_surfaces 
+    # using hypernormalized T1w brain (if hypernormalization was not omitted); 
+    # omits second pass of mris_make_surfaces (in which the surfaces generated in 
+    # the first pass would be used as priors, and a non-hypernormalized T1w brain is used)
+    single_pass_pial = 'false'  
 
     # @ bold processing defaults @ #
     # brain radius of subject set
@@ -112,6 +119,7 @@ class ParameterSettings(object):
     # aseg file
     aseg = None
     asegdir = None
+
 
     def __init__(self, bids_data, output_directory):
         """
@@ -210,6 +218,9 @@ class ParameterSettings(object):
         self.aseg = None
         self.asegdir = None
 
+        # FreeSurfer single pass pial 
+        self.single_pass_pial = 'false'
+
         # ANTs intermediate reg to study template
         self.useAntsReg = 'false'
 
@@ -284,12 +295,26 @@ class ParameterSettings(object):
     
     def set_hypernormalization_method(self, norm_method):
         self.norm_method = norm_method
+    
+
     def set_norm_gm_std_dev_scale(self, value):
+    # scaling factor for standard deviation of GM in normalized T1 
+    # (relative to adult normalization reference)
         self.norm_gm_std_dev_scale = value
     def set_norm_wm_std_dev_scale(self, value):
+    # scaling factor for standard deviation of WM in normalized T1 
+    # (relative to adult normalization reference)
         self.norm_wm_std_dev_scale = value
     def set_norm_csf_std_dev_scale(self, value):
+    # scaling factor for standard deviation of CSF in normalized T1 
+    # (relative to adult normalization reference)
         self.norm_csf_std_dev_scale = value
+    
+    def set_single_pass_pial(self, value):
+        # flag to have FreeSurfer generate pial surfaces with a single pass
+        # of mris_make_surfaces instead of default two-pass method
+        # (using the output of the first pass as a prior)
+        self.single_pass_pial = value
 
     def set_max_cortical_thickness(self, value):
         # Set the value to send to FreeSurfer.
@@ -782,6 +807,7 @@ class FreeSurfer(Stage):
            ' --normgmstddevscale={norm_gm_std_dev_scale}' \
            ' --normwmstddevscale={norm_wm_std_dev_scale}' \
            ' --normcsfstddevscale={norm_csf_std_dev_scale}' \
+           ' --singlepasspial={single_pass_pial}' \
            ' --printcom={printcom}'
 
     def __init__(self, config):

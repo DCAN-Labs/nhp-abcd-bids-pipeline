@@ -198,6 +198,10 @@ optional arguments:
                         standard deviation of the adult reference image.
                         This option has no effect when used with ADULT_GM_IP
                         hypernormalization. Default = 1.
+    --single-pass-pial
+                        create pial surfaces in FreeSurfer with a single pass of mris_make_surfaces using hypernormalized T1w brain (if hypernormalization was not omitted); omits second pass of mris_make_surfaces (in which the surfaces generated in 
+                        the first pass would be used as priors, and a 
+                        non-hypernormalized T1w brain is used). Default = False.
 
 special pipeline options:
   options which pertain to an alternative pipeline or an extra stage which is not

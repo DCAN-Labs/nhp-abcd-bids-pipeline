@@ -70,6 +70,7 @@ def _cli():
                      args.norm_gm_std_dev_scale,
                      args.norm_wm_std_dev_scale,
                      args.norm_csf_std_dev_scale,
+                     args.single_pass_pial,
                      args.registration_assist,
                      args.freesurfer_license)
 
@@ -158,21 +159,28 @@ def generate_parser(parser=None):
         '--norm-gm-std-dev-scale', type=float, default=1, dest='norm_gm_std_dev_scale',
         help='normalized GM standard deviation scale factor (relative to normalization template). '
         'Modifies the standard deviation of intensity values for GM voxels in the '
-        'hypernormalized T1w image used by FreeSurfer. Default = 1'
+        'hypernormalized T1w image used by FreeSurfer. Default = 1.'
     )
     parser.add_argument(
         '--norm-wm-std-dev-scale', type=float, default=1, dest='norm_wm_std_dev_scale',
         help='normalized WM standard deviation scale factor (relative to normalization template). '
         'Modifies the standard deviation of intensity values for WM voxels in the '
-        'hypernormalized T1w image used by FreeSurfer. Default = 1'
+        'hypernormalized T1w image used by FreeSurfer. Default = 1.'
     )
     parser.add_argument(
         '--norm-csf-std-dev-scale', type=float, default=1, dest='norm_csf_std_dev_scale',
         help='normalized CSF standard deviation scale factor (relative to normalization template). '
         'Modifies the standard deviation of intensity values for CSF voxels in the '
         'hypernormalized T1w image used by FreeSurfer. Has no effect if used with ADULT_GM_IP '
-        'hypernormalization. Default = 1'
+        'hypernormalization. Default = 1.'
     )            
+    parser.add_argument(
+        '--single-pass-pial', dest='single_pass_pial', action='store_true',
+        help='create pial surfaces in FreeSurfer with a single pass of mris_make_surfaces ' 
+        'using hypernormalized T1w brain (if hypernormalization was not omitted); '
+        'omits second pass of mris_make_surfaces (in which the surfaces generated in '
+        'the first pass would be used as priors, and a non-hypernormalized T1w brain is used). '
+        'Default = False.'
     parser.add_argument(
         '--registration-assist', nargs=2, metavar=('MOVING', 'REFERENCE'),
         help='provide two task/run names, a moving and a reference image to '
@@ -283,7 +291,7 @@ def interface(bids_dir, output_dir, aseg=None, subject_list=None, session_list=N
               study_template=None, useAntsReg=False, cleaning_json=None, print_commands=False,
               ignore_expected_outputs=False, multi_template_dir=None, norm_method=None,
               norm_gm_std_dev_scale=1, norm_wm_std_dev_scale=1, norm_csf_std_dev_scale=1,
-              registration_assist=None, freesurfer_license=None):
+              single_pass_pial=False, registration_assist=None, freesurfer_license=None):
     """
     main application interface
     :param bids_dir: input bids dataset see "helpers.read_bids_dataset" for
@@ -309,6 +317,7 @@ def interface(bids_dir, output_dir, aseg=None, subject_list=None, session_list=N
     :param norm_gm_std_dev_scale: scale factor for normalized GM standard deviation (relative to normalization template)
     :param norm_wm_std_dev_scale: scale factor for normalized WM standard deviation (relative to normalization template)
     :param norm_csf_std_dev_scale: scale factor for normalized CSF standard deviation (relative to normalization template)
+    :param single_pass_pial: generate pial surfaces in FreeSurfer with a single pass of mris_make_surfaces instead of default two-pass method (using surfaces generated in first pass create priors)
     :return:
     """
 
@@ -346,6 +355,8 @@ def interface(bids_dir, output_dir, aseg=None, subject_list=None, session_list=N
             session_spec.set_norm_wm_std_dev_scale(norm_wm_std_dev_scale)
         if norm_csf_std_dev_scale is not 1:
             session_spec.set_norm_csf_std_dev_scale(norm_csf_std_dev_scale)
+        if single_pass_pial is not False:
+            session_spec.set_single_pass_pial(single_pass_pial)
         if useAntsReg is not False:
             session_spec.set_use_ants_reg(useAntsReg)
         if t1_brain_mask is not None:
