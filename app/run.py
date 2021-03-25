@@ -181,6 +181,7 @@ def generate_parser(parser=None):
         'omits second pass of mris_make_surfaces (in which the surfaces generated in '
         'the first pass would be used as priors, and a non-hypernormalized T1w brain is used). '
         'Default = False.'
+    )
     parser.add_argument(
         '--registration-assist', nargs=2, metavar=('MOVING', 'REFERENCE'),
         help='provide two task/run names, a moving and a reference image to '
