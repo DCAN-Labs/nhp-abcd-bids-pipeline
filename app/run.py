@@ -61,7 +61,7 @@ def _cli():
                      args.t1_brain_mask,
                      args.t2_brain_mask,
                      args.study_template,
-                     args.useAntsReg,
+                     args.t1_reg_method,
                      args.cleaning_json,
                      args.print,
                      args.ignore_expected_outputs,
@@ -235,11 +235,18 @@ def generate_parser(parser=None):
              'Template.'
     )
     parser.add_argument(
-        '--use-ants-reg', dest='useAntsReg', action='store_true',
-        help='perform ANTs-based intermediate registration of'
-            'anatomical images to study template prior to'
-            'registration to standard template (Yerkes19).'
-    )
+        '--t1-reg-method', dest='t1_reg_method',
+        default='FLIRT_FNIRT',
+        choices=['FLIRT_FNIRT', 'ANTS', 'ANTS_NO_INTERMEDIATE'],
+        help='specify the method used to register subject T1w to '
+             'reference during PreFreeSurfer. '
+             'FLIRT_FNIRT performs FLIRT and FNIRT registration to reference. '
+             'ANTS performs intermediate registration to study template, '
+             'then registers to reference, using antsRegistrationSyN for both. '
+             'ANTS_NO_INTERMEDIATE registers directly to reference '
+             'with antsRegistrationSyN. '
+             'Default: FLIRT_FNIRT.'
+            
     runopts = parser.add_argument_group(
         'runtime options',
         description='special changes to runtime behaviors. Debugging features.'
@@ -289,7 +296,7 @@ def generate_parser(parser=None):
 def interface(bids_dir, output_dir, aseg=None, subject_list=None, session_list=None,
               collect=False, ncpus=1, start_stage=None, bandstop_params=None,
               max_cortical_thickness=5, check_only=False, t1_brain_mask=None, t2_brain_mask=None,
-              study_template=None, useAntsReg=False, cleaning_json=None, print_commands=False,
+              study_template=None, t1_reg_method='FLIRT_FNIRT', cleaning_json=None, print_commands=False,
               ignore_expected_outputs=False, multi_template_dir=None, norm_method=None,
               norm_gm_std_dev_scale=1, norm_wm_std_dev_scale=1, norm_csf_std_dev_scale=1,
               single_pass_pial=False, registration_assist=None, freesurfer_license=None):
@@ -312,7 +319,7 @@ def interface(bids_dir, output_dir, aseg=None, subject_list=None, session_list=N
     :param t2_brain_mask: specify mask to use instead of letting PreFreeSurfer create it.
     :param sshead: study specific template head for brain masking
     :param ssbrain: study specific template brain for brain masking
-    :param useAntsReg: ANTs-based intermediate registration to study template
+    :param t1_reg_method: PreFreeSurfer T1w registration method
     :param multi_template_dir: directory of joint label fusion atlases
     :param norm_method: which method will be used for hyper-normalization step.
     :param norm_gm_std_dev_scale: scale factor for normalized GM standard deviation (relative to normalization template)
@@ -358,8 +365,11 @@ def interface(bids_dir, output_dir, aseg=None, subject_list=None, session_list=N
             session_spec.set_norm_csf_std_dev_scale(norm_csf_std_dev_scale)
         if single_pass_pial is not False:
             session_spec.set_single_pass_pial(single_pass_pial)
-        if useAntsReg is not False:
-            session_spec.set_use_ants_reg(useAntsReg)
+        if t1_reg_method is None:
+            # Use default: FLIRT_FNIRT
+            session_spec.set_t1_reg_method("FLIRT_FNIRT")
+        else
+            session_spec.set_t1_reg_method(t1_reg_method)
         if t1_brain_mask is not None:
             session_spec.set_t1_brain_mask(t1_brain_mask)
         if t2_brain_mask is not None:

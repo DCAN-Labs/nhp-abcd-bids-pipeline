@@ -72,7 +72,7 @@ usage: nhp-abcd-bids-pipeline [-h] [--version] [--aseg ASEG]
                               [--t1-brain-mask T1_BRAIN_MASK]
                               [--t2-brain-mask T2_BRAIN_MASK]
                               [--study-template HEAD BRAIN]
-                              [--use-ants-reg]
+                              [--t1-reg-method {FLIRT_FNIRT,ANTS,ANTS_NO_INTERMEDIATE}]
                               [--check-outputs-only] [--print-commands-only]
                               [--ignore-expected-outputs]
                               [--multi-template-dir MULTI_TEMPLATE_DIR]
@@ -154,9 +154,17 @@ optional arguments:
                         differences in male/female and in separate age
                         categories, or for differences in anatomical field of
                         view. Default is to use the Yerkes19 Template.
-  --use-ants-reg        perform ANTs-based intermediate registration of
-                        anatomical images to study template prior to
-                        registration to standard template (Yerkes19).
+  --t1-reg-method {FLIRT_FNIRT,ANTS,ANTS_NO_INTERMEDIATE}        
+                        specify the method used to register subject T1w to 
+                        reference during PreFreeSurfer. 
+                        FLIRT_FNIRT uses FLIRT (for initial affine transform) 
+                        and FNIRT to register to reference. 
+                        ANTS performs intermediate registration to study 
+                        template, then registers to reference, using 
+                        antsRegistrationSyN for both. 
+                        ANTS_NO_INTERMEDIATE registers directly to reference 
+                        using antsRegistrationSyN. 
+                        Default: FLIRT_FNIRT. 
   --multi-template-dir MULTI_TEMPLATE_DIR
                         directory for joint label fusion templates. It should
                         contain only folders which each contain a
