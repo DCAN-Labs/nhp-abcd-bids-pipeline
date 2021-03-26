@@ -221,8 +221,8 @@ class ParameterSettings(object):
         # FreeSurfer single pass pial 
         self.single_pass_pial = 'false'
 
-        # ANTs intermediate reg to study template
-        self.useAntsReg = 'false'
+        # PreFreeSurfer T1w reg method
+        self.t1_reg_method = 'FLIRT_FNIRT'
 
     def __getitem__(self, item):
         return self._params()[item]
@@ -281,9 +281,9 @@ class ParameterSettings(object):
         self.studytemplate = study_template
         self.studytemplatebrain = study_template_brain
     
-    def set_use_ants_reg(self, use_ants_reg):     
-        # Use ANTs-based intermediate registration to study template.
-        self.useAntsReg = use_ants_reg
+    def set_t1_reg_method(self, value):     
+        # set T1w registration method to be used by PreFreeSurfer.
+        self.t1_reg_method = value
 
     def set_templates_dir(self, multi_template_dir):
         """
@@ -735,7 +735,7 @@ class PreFreeSurfer(Stage):
            ' --multitemplatedir={multitemplatedir}' \
            ' --StudyTemplate={studytemplate}' \
            ' --StudyTemplateBrain={studytemplatebrain}' \
-           ' --useAntsReg={useAntsReg}' \
+           ' --t1regmethod={t1_reg_method}' \
            ' --asegdir={asegdir} '
 
     def __init__(self, config):
