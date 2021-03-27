@@ -246,7 +246,7 @@ def generate_parser(parser=None):
              'ANTS_NO_INTERMEDIATE registers directly to reference '
              'with antsRegistrationSyN. '
              'Default: FLIRT_FNIRT.'
-            
+    )        
     runopts = parser.add_argument_group(
         'runtime options',
         description='special changes to runtime behaviors. Debugging features.'
@@ -368,7 +368,7 @@ def interface(bids_dir, output_dir, aseg=None, subject_list=None, session_list=N
         if t1_reg_method is None:
             # Use default: FLIRT_FNIRT
             session_spec.set_t1_reg_method("FLIRT_FNIRT")
-        else
+        else:
             session_spec.set_t1_reg_method(t1_reg_method)
         if t1_brain_mask is not None:
             session_spec.set_t1_brain_mask(t1_brain_mask)
