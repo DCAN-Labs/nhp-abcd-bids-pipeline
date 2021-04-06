@@ -89,6 +89,9 @@ class ParameterSettings(object):
     norm_wm_std_dev_scale = 1
     norm_csf_std_dev_scale = 1
 
+    # use normalized T1w (if it exists) when making white surfaces in FreeSurfer
+    make_white_from_norm_t1 = 'false'
+
     # create pial surfaces in FreeSurfer with a single pass of mris_make_surfaces 
     # using hypernormalized T1w brain (if hypernormalization was not omitted); 
     # omits second pass of mris_make_surfaces (in which the surfaces generated in 
@@ -218,11 +221,14 @@ class ParameterSettings(object):
         self.aseg = None
         self.asegdir = None
 
-        # FreeSurfer single pass pial 
-        self.single_pass_pial = 'false'
-
         # PreFreeSurfer T1w reg method
         self.t1_reg_method = 'FLIRT_FNIRT'
+
+        # FreeSurfer - make white surfaces from normalized T1
+        self.make_white_from_norm_t1 = 'false'
+
+        # FreeSurfer single pass pial 
+        self.single_pass_pial = 'false'
 
     def __getitem__(self, item):
         return self._params()[item]
@@ -298,18 +304,23 @@ class ParameterSettings(object):
     
 
     def set_norm_gm_std_dev_scale(self, value):
-    # scaling factor for standard deviation of GM in normalized T1 
-    # (relative to adult normalization reference)
+        # scaling factor for standard deviation of GM in normalized T1 
+        # (relative to adult normalization reference)
         self.norm_gm_std_dev_scale = value
     def set_norm_wm_std_dev_scale(self, value):
-    # scaling factor for standard deviation of WM in normalized T1 
-    # (relative to adult normalization reference)
+        # scaling factor for standard deviation of WM in normalized T1 
+        # (relative to adult normalization reference)
         self.norm_wm_std_dev_scale = value
     def set_norm_csf_std_dev_scale(self, value):
-    # scaling factor for standard deviation of CSF in normalized T1 
-    # (relative to adult normalization reference)
+        # scaling factor for standard deviation of CSF in normalized T1 
+        # (relative to adult normalization reference)
         self.norm_csf_std_dev_scale = value
     
+    def set_make_white_from_norm_t1(self, value):
+        # flag to have FreeSurfer use normalized T1 (if it exists)
+        # when making white surfaces with mris_make_surfaces
+        self.make_white_from_norm_t1 = value
+   
     def set_single_pass_pial(self, value):
         # flag to have FreeSurfer generate pial surfaces with a single pass
         # of mris_make_surfaces instead of default two-pass method
@@ -807,6 +818,7 @@ class FreeSurfer(Stage):
            ' --normgmstddevscale={norm_gm_std_dev_scale}' \
            ' --normwmstddevscale={norm_wm_std_dev_scale}' \
            ' --normcsfstddevscale={norm_csf_std_dev_scale}' \
+           ' --makewhitefromnormt1={make_white_from_norm_t1}' \
            ' --singlepasspial={single_pass_pial}' \
            ' --printcom={printcom}'
 

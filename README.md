@@ -209,6 +209,8 @@ optional arguments:
                         standard deviation of the adult reference image.
                         This option has no effect when used with ADULT_GM_IP
                         hypernormalization. Default = 1.
+    --make-white-from-norm-t1
+                        use normalized T1w volume (if it exists) as input to FreeSurfer's mris_make_surfaces when making white surfaces. Default = False.                     
     --single-pass-pial
                         create pial surfaces in FreeSurfer with a single pass of mris_make_surfaces using hypernormalized T1w brain (if hypernormalization was not omitted); omits second pass of mris_make_surfaces (in which the surfaces generated in 
                         the first pass would be used as priors, and a 

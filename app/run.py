@@ -70,6 +70,7 @@ def _cli():
                      args.norm_gm_std_dev_scale,
                      args.norm_wm_std_dev_scale,
                      args.norm_csf_std_dev_scale,
+                     args.make_white_from_norm_t1,
                      args.single_pass_pial,
                      args.registration_assist,
                      args.freesurfer_license)
@@ -173,7 +174,12 @@ def generate_parser(parser=None):
         'Modifies the standard deviation of intensity values for CSF voxels in the '
         'hypernormalized T1w image used by FreeSurfer. Has no effect if used with ADULT_GM_IP '
         'hypernormalization. Default = 1.'
-    )            
+    )           
+    parser.add_argument(
+        '--make-white-from-norm-t1', dest='make_white_from_norm_t1', action='store_true',
+        help='use normalized T1w volume (if it exists) as input to FreeSurfer\'s ' 
+        'mris_make_surfaces when making white surfaces. Default = False. '
+    )     
     parser.add_argument(
         '--single-pass-pial', dest='single_pass_pial', action='store_true',
         help='create pial surfaces in FreeSurfer with a single pass of mris_make_surfaces ' 
@@ -302,7 +308,8 @@ def interface(bids_dir, output_dir, aseg=None, subject_list=None, session_list=N
               study_template=None, t1_reg_method='FLIRT_FNIRT', cleaning_json=None, print_commands=False,
               ignore_expected_outputs=False, multi_template_dir=None, norm_method=None,
               norm_gm_std_dev_scale=1, norm_wm_std_dev_scale=1, norm_csf_std_dev_scale=1,
-              single_pass_pial=False, registration_assist=None, freesurfer_license=None):
+              make_white_from_norm_t1=False, single_pass_pial=False, registration_assist=None,
+              freesurfer_license=None):
     """
     main application interface
     :param bids_dir: input bids dataset see "helpers.read_bids_dataset" for
@@ -328,6 +335,7 @@ def interface(bids_dir, output_dir, aseg=None, subject_list=None, session_list=N
     :param norm_gm_std_dev_scale: scale factor for normalized GM standard deviation (relative to normalization template)
     :param norm_wm_std_dev_scale: scale factor for normalized WM standard deviation (relative to normalization template)
     :param norm_csf_std_dev_scale: scale factor for normalized CSF standard deviation (relative to normalization template)
+    :param make_white_from_norm_t1: generate white surfaces in FreeSurfer from normalized T1w
     :param single_pass_pial: generate pial surfaces in FreeSurfer with a single pass of mris_make_surfaces instead of default two-pass method (using surfaces generated in first pass create priors)
     :return:
     """
@@ -366,6 +374,8 @@ def interface(bids_dir, output_dir, aseg=None, subject_list=None, session_list=N
             session_spec.set_norm_wm_std_dev_scale(norm_wm_std_dev_scale)
         if norm_csf_std_dev_scale is not 1:
             session_spec.set_norm_csf_std_dev_scale(norm_csf_std_dev_scale)
+        if make_white_from_norm_t1 is not False:
+            session_spec.set_make_white_from_norm_t1(make_white_from_norm_t1)
         if single_pass_pial is not False:
             session_spec.set_single_pass_pial(single_pass_pial)
         if t1_reg_method is None:
