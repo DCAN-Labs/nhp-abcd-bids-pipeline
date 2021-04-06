@@ -116,7 +116,7 @@ class ParameterSettings(object):
     contiguous_frames = 5
     # maximum cortical thickness for FreeSurfer
     max_cortical_thickness = 5   
-    # aseg file
+    # aseg file (filename must be "aseg_acpc.nii.gz")
     aseg = None
     asegdir = None
 
