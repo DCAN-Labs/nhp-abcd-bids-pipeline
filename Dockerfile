@@ -17,8 +17,7 @@ COPY ["app", "/app"]
 RUN python3 -m pip install -r "/app/requirements.txt"
 
 # insert pipeline code
-ARG CACHEBUST=1
-RUN git clone -b 'dev-10.5T-reg' --single-branch --depth 1 https://github.com/madisoth/dcan-macaque-pipeline.git /opt/pipeline 
+RUN git clone -b 'dev-10.5T' --single-branch --depth 1 https://github.com/DCAN-Labs/dcan-macaque-pipeline.git /opt/pipeline 
 
 # unless otherwise specified...
 ENV OMP_NUM_THREADS=1
