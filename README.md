@@ -76,7 +76,11 @@ usage: nhp-abcd-bids-pipeline [-h] [--version] [--aseg ASEG]
                               [--check-outputs-only] [--print-commands-only]
                               [--ignore-expected-outputs]
                               [--multi-template-dir MULTI_TEMPLATE_DIR]
-                              [--hyper-normalization-method {ADULT_GM_IP,ROI_IPS,NONE}]
+                              [--hyper-normalization-method {ADULT_GM_IP,ROI_IPS,NONE}]  
+                              [--norm-gm-std-dev-scale SCALE_FACTOR]
+                              [--norm-wm-std-dev-scale SCALE_FACTOR]
+                              [--norm-csf-std-dev-scale SCALE_FACTOR]
+                              [--make-white-from-norm-t1] [--single-pass-pial]
                               bids_dir output_dir
 
 The Developmental Cognition and Neuroimaging (DCAN) lab Macaque fMRI
