@@ -156,16 +156,18 @@ optional arguments:
                         This option may be used in conjunction with 
                         --t1-brain-mask, but is not required. 
   --study-template HEAD BRAIN
-                        template head and brain images for masking nonlinear.
-                        Effective to account for population head shape
-                        differences in male/female and in separate age
-                        categories, or for differences in anatomical field of
-                        view. Default is to use the Yerkes19 Template.
+                        template head and brain images for masking nonlinear
+                        and optional intermediate registration of T1w to
+                        standard atlas (Yerkes19). Effective to account for
+                        population head shape differences in male/female and
+                        in separate agencategories, or for differences in 
+                        anatomical field of view. Default is to use the
+                        Yerkes19 template.
   --t1-reg-method {FLIRT_FNIRT,ANTS,ANTS_NO_INTERMEDIATE}        
                         specify the method used to register subject T1w to 
                         reference during PreFreeSurfer. 
-                        FLIRT_FNIRT uses FLIRT (for initial affine transform) 
-                        and FNIRT to register to reference. 
+                        FLIRT_FNIRT uses FLIRT for initial affine transform 
+                        then FNIRT to register to reference. 
                         ANTS performs intermediate registration to study 
                         template, then registers to reference, using 
                         antsRegistrationSyN for both. 
@@ -271,4 +273,93 @@ changes to be incorporated into this pipeline, you need to do that explicitly.
 Tag the internal-tools release and let it build. Then, go to:
 https://hub.docker.com/repository/docker/dcanlabs/external-software/nhp-abcd-bids-pipeline.
 Click on the "Builds" tab, then on "Trigger" for the build.
+
+### Additional Information:
+
+#### Outputs
+
+The outputs are organized in the following structure:
+
+output_dir/sub-id/ses-session/
+- files/
+- logs/
+
+##### files
+
+- T1w:  contains native space anatomical data as well as intermediate 
+preprocessing files. 
+- T1w/participantID: The participant ID folder within T1w is the FreeSurfer 
+subject folder. 
+- T2w:  contains native space anatomical data as well as intermediate 
+preprocessing files.
+- MNINonLinear: contains the final space results of anatomy in 164k 
+resolution. 
+- MNINonLinear/Results: final space functional data.
+- MNINonLinear/fsaverage_32K: final space anatomy in 32k resolution, where 
+functional data is ultimately projected.
+- task-taskname: these folders contain intermediate functional preprocessing 
+files.
+- summary_DCANBOLDProc_ver/executivesummary: the .html file within can be opened for quality 
+inspection of pipeline results.
+
+#### NOTE: about "MNINonLinear"
+
+The name of the "MNINonLinear" output directory was inherited from DCAN-HCP BIDS app / abcd-bids-pipeline, in which the standard output space is MNINonLinear. In this pipeline, images in the "MNINonLinear" directory are actually in MacaqueYerkes19 space.
+
+##### logs
+
+logs contains the log files for each stage. In the case of an error, consult 
+these files in addition to the standard err/out of the app itself (by 
+default this is printed to the command line).
+
+status.json codes:
+
+- unchecked: 999
+- succeeded: 1
+- incomplete: 2
+- failed: 3
+- not_started: 4
+
+
+#### Rerunning
+
+The --stage option exists so you can restart the pipeline in the case that 
+it terminated prematurely.
+
+#### Misc.
+
+Temporary/Scratch space:  By default, everything is processed in the 
+output folder. We may work on a more efficient use of disk space in the 
+future, along with the ability to use a temporary file system mount for
+hot read/writes.
+
+software will resolve to using spin echo field maps if they are present, 
+then gradient field maps, then None, consistent with best observed
+performances. Note that there are no errors or warnings if multiple 
+modalities are present.
+
+For specified use of spin echo field maps, i.e. mapping a pair to each
+individual functional run, it is necessary to insert the "IntendedFor"
+field into the bids input sidecar jsons, which specifies a functional
+run for each field map.  This field is explained in greater detail
+within the bids specification.
+
+In the case of multiband (fast TR) data, it is recommended to employ a
+band-stop filter to mitigate artifactually high motion numbers.  The
+band-stop filter used on motion regressors prior to frame-wise
+displacement calculation has parameters which must be chosen based on
+subject respiratory rate.
+
+#### Some current limitations
+
+The ideal motion filtering parameters have not been robustly tested
+across repetition times or populations. Additionally, automatic reading
+of physio data from bids format has not yet been implemented, so the
+proper range should be decided upon carefully.
+
+software does not currently support dynamic acquisition parameters for
+a single modality (e.g. different phase encoding direction for 2 fmri).
+Other parameters would have to be processed by creating separate bids
+datasets for sessions with varied fmri parameters.
+
 
