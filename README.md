@@ -362,4 +362,12 @@ a single modality (e.g. different phase encoding direction for 2 fmri).
 Other parameters would have to be processed by creating separate bids
 datasets for sessions with varied fmri parameters.
 
+#### Known issues 
+
+Error during FMRIVolume when multiple runs exist with same ses-, task- (and optionally run-) label; e.g. runs that must be differentiated by acq- labels (which is currently not accounted for when parsing BIDS filenames of functional runs).
+
+
+
+
+
 
