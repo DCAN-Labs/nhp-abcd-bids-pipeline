@@ -210,10 +210,10 @@ WORKDIR /opt/dcan-tools
 # dcan bold processing
 ADD https://github.com/DCAN-Labs/dcan_bold_processing.git version.json
 #RUN git clone -b v4.0.6 --single-branch --depth 1 https://github.com/DCAN-Labs/dcan_bold_processing.git dcan_bold_proc
-RUN git clone -b develop --single-branch --depth 1 https://github.com/DCAN-Labs/dcan_bold_processing.git dcan_bold_proc
+RUN git clone -b 'patch-1' --single-branch --depth 1 https://github.com/madisoth/dcan_bold_processing.git dcan_bold_proc
 
 # dcan executive summary
-RUN git clone -b v2.2.7 --single-branch --depth 1 https://github.com/DCAN-Labs/ExecutiveSummary.git executivesummary
+RUN git clone -b 'v2.2.10' --single-branch --depth 1 https://github.com/madisoth/ExecutiveSummary.git executivesummary
 RUN gunzip /opt/dcan-tools/executivesummary/templates/parasagittal_Tx_169_template.scene.gz
 
 # dcan custom clean
