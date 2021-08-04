@@ -61,7 +61,7 @@ the call to singularity is prefaced by "env -i"
 
 ## Options
 ```{python}
-usage: nhp-abcd-bids-pipeline [-h] [--version]
+usage: nhp-abcd-bids-pipeline [-h] [--version] [--aseg ASEG]
                               [--participant-label PARTICIPANT_LABEL [PARTICIPANT_LABEL ...]]
                               [--session-id SESSION_ID [SESSION_ID ...]]
                               [--all-sessions] [--ncpus NCPUS] [--stage STAGE]
@@ -69,11 +69,18 @@ usage: nhp-abcd-bids-pipeline [-h] [--version]
                               [--max-cortical-thickness MAX_CORTICAL_THICKNESS]
                               [--registration-assist MOVING REFERENCE]
                               [--custom-clean JSON]
+                              [--t1-brain-mask T1_BRAIN_MASK]
+                              [--t2-brain-mask T2_BRAIN_MASK]
                               [--study-template HEAD BRAIN]
+                              [--t1-reg-method {FLIRT_FNIRT,ANTS,ANTS_NO_INTERMEDIATE}]
                               [--check-outputs-only] [--print-commands-only]
                               [--ignore-expected-outputs]
                               [--multi-template-dir MULTI_TEMPLATE_DIR]
-                              [--hyper-normalization-method {ADULT_GM_IP,ROI_IPS,NONE}]
+                              [--hyper-normalization-method {ADULT_GM_IP,ROI_IPS,NONE}]  
+                              [--norm-gm-std-dev-scale SCALE_FACTOR]
+                              [--norm-wm-std-dev-scale SCALE_FACTOR]
+                              [--norm-csf-std-dev-scale SCALE_FACTOR]
+                              [--make-white-from-norm-t1] [--single-pass-pial]
                               bids_dir output_dir
 
 The Developmental Cognition and Neuroimaging (DCAN) lab Macaque fMRI
@@ -96,6 +103,12 @@ positional arguments:
 optional arguments:
   -h, --help            show this help message and exit
   --version, -v         show program's version number and exit
+  --aseg ASEG           specify path to the aseg file to be used by
+                        FreeSurfer; replaces the default aseg_acpc.nii.gz
+                        in the subject's T1w directory. The filename of the
+                        specified aseg file must be "aseg_acpc.nii.gz". 
+                        Default: aseg_acpc.nii.gz in subject's T1w directory 
+                        generated in PreFreeSurfer using ANTs joint label fusion.
   --participant-label PARTICIPANT_LABEL [PARTICIPANT_LABEL ...]
                         optional list of participant ids to run. Default is
                         all ids found under the bids input directory. A
@@ -130,12 +143,37 @@ optional arguments:
                         to T1w images under typical FSL flirt metrics. Using a
                         bold image as a reference can help with this issue.
                         e.g. task-CErest01 task-rest01
+  --t1-brain-mask T1_BRAIN_MASK
+                        specify the path to the mask file. The file specified
+                        will be applied in place of the default masking 
+                        process in PreliminaryMasking and PreFreeSurfer.
+                        --t2-brain-mask may be used in conjunction with this 
+                        option, but is not required. 
+  --t2-brain-mask T2_BRAIN_MASK
+                        specify the path to the mask file. The file specified
+                        will be applied in place of the default masking 
+                        process in PreliminaryMasking and PreFreeSurfer.
+                        This option may be used in conjunction with 
+                        --t1-brain-mask, but is not required. 
   --study-template HEAD BRAIN
-                        template head and brain images for masking nonlinear.
-                        Effective to account for population head shape
-                        differences in male/female and in separate age
-                        categories, or for differences in anatomical field of
-                        view. Default is to use the Yerkes19 Template.
+                        template head and brain images for masking nonlinear
+                        and optional intermediate registration of T1w to
+                        standard atlas (Yerkes19). Effective to account for
+                        population head shape differences in male/female and
+                        in separate agencategories, or for differences in 
+                        anatomical field of view. Default is to use the
+                        Yerkes19 template.
+  --t1-reg-method {FLIRT_FNIRT,ANTS,ANTS_NO_INTERMEDIATE}        
+                        specify the method used to register subject T1w to 
+                        reference during PreFreeSurfer. 
+                        FLIRT_FNIRT uses FLIRT for initial affine transform 
+                        then FNIRT to register to reference. 
+                        ANTS performs intermediate registration to study 
+                        template, then registers to reference, using 
+                        antsRegistrationSyN for both. 
+                        ANTS_NO_INTERMEDIATE registers directly to reference 
+                        using antsRegistrationSyN. 
+                        Default: FLIRT_FNIRT. 
   --multi-template-dir MULTI_TEMPLATE_DIR
                         directory for joint label fusion templates. It should
                         contain only folders which each contain a
@@ -155,6 +193,38 @@ optional arguments:
                         step. This allows the user to run PreFreeSurfer, apply
                         new, experimental hyper-normalization methods and then
                         restart at FreeSurfer. Default: ADULT_GM_IP.
+  --norm-gm-std-dev-scale SCALE_FACTOR
+                        specify, as a floating-point number, the scaling factor
+                        for the standard deviation of GM voxels in the 
+                        hypernormalized FreeSurfer T1w image relative to the
+                        standard deviation of the adult reference image.
+                        Reducing the standard deviation of GM voxels
+                        may remedy issues with poor surface generation in
+                        FreeSurfer when T1w contrast in cortical GM is uneven
+                        or weak near the pial surface. Default = 1.
+  --norm-wm-std-dev-scale SCALE_FACTOR
+                        specify, as a floating-point number, the scaling factor
+                        for the standard deviation of WM voxels in the 
+                        hypernormalized FreeSurfer T1w image relative to the
+                        standard deviation of the adult reference image.
+                        Default = 1.
+  --norm-csf-std-dev-scale SCALE_FACTOR
+                        specify, as a floating-point number, the scaling factor
+                        for the standard deviation of GM voxels in the 
+                        hypernormalized FreeSurfer T1w image relative to the
+                        standard deviation of the adult reference image.
+                        This option has no effect when used with ADULT_GM_IP
+                        hypernormalization. Default = 1.
+  --make-white-from-norm-t1
+                        use normalized T1w volume (if it exists) as input to FreeSurfer'
+                        mris_make_surfaces when making white surfaces. Default = False.                     
+  --single-pass-pial
+                        create pial surfaces in FreeSurfer with a single pass of
+                        mris_make_surfaces using hypernormalized T1w brain (if
+                        hypernormalization was not omitted); omits second pass of
+                        mris_make_surfaces (in which the surfaces generated in 
+                        the first pass would be used as priors, and a 
+                        non-hypernormalized T1w brain is used). Default = False.
 
 special pipeline options:
   options which pertain to an alternative pipeline or an extra stage which is not
@@ -194,17 +264,105 @@ Neuroinform. 2014 Apr 28;8:44. doi: 10.3389/fninf.2014.00044. eCollection 2014.
 
 ## Building the Docker Image
 This repository contains the Dockerfile (and other files) needed to create the
-docker image that will contain the BIDs app and the pipeline scripts. In order
-to build the image, you will need to have already built the internal-tools
-docker image.
+docker image that will contain the BIDs app and the pipeline scripts. This version
+does not require a ready-built DCAN-Labs internal-tools as prior releases have; the
+contents of the internal-tools Dockerfile are now integrated into
+the nhp-abcd-bids-pipeline Dockerfile.
 
-Whenever you push changes to the dcanlabs/nhp-abcd-bids-pipeline repository on
-GitHub, the pipeline build on DockerHub will be triggered automatically.
+### Additional Information:
 
-If you have made changes to dcanlabs/internal-tools and you want the
-changes to be incorporated into this pipeline, you need to do that explicitly.
+#### Outputs
 
-Tag the internal-tools release and let it build. Then, go to:
-https://hub.docker.com/repository/docker/dcanlabs/external-software/nhp-abcd-bids-pipeline.
-Click on the "Builds" tab, then on "Trigger" for the build.
+The outputs are organized in the following structure:
+
+output_dir/sub-id/ses-session/
+- files/
+- logs/
+
+##### files
+
+- T1w:  contains native space anatomical data as well as intermediate 
+preprocessing files. 
+- T1w/participantID: The participant ID folder within T1w is the FreeSurfer 
+subject folder. 
+- T2w:  contains native space anatomical data as well as intermediate 
+preprocessing files.
+- MNINonLinear: contains the final space results of anatomy in 164k 
+resolution. 
+- MNINonLinear/Results: final space functional data.
+- MNINonLinear/fsaverage_32K: final space anatomy in 32k resolution, where 
+functional data is ultimately projected.
+- task-taskname: these folders contain intermediate functional preprocessing 
+files.
+- summary_DCANBOLDProc_ver/executivesummary: the .html file within can be opened for quality 
+inspection of pipeline results.
+
+#### NOTE: about "MNINonLinear"
+
+The name of the "MNINonLinear" output directory was inherited from DCAN-HCP BIDS app / abcd-bids-pipeline, in which the standard output space is MNINonLinear. In this pipeline, images in the "MNINonLinear" directory are actually in MacaqueYerkes19 space.
+
+##### logs
+
+logs contains the log files for each stage. In the case of an error, consult 
+these files in addition to the standard err/out of the app itself (by 
+default this is printed to the command line).
+
+status.json codes:
+
+- unchecked: 999
+- succeeded: 1
+- incomplete: 2
+- failed: 3
+- not_started: 4
+
+
+#### Rerunning
+
+The --stage option exists so you can restart the pipeline in the case that 
+it terminated prematurely.
+
+#### Misc.
+
+Temporary/Scratch space:  By default, everything is processed in the 
+output folder. We may work on a more efficient use of disk space in the 
+future, along with the ability to use a temporary file system mount for
+hot read/writes.
+
+software will resolve to using spin echo field maps if they are present, 
+then gradient field maps, then None, consistent with best observed
+performances. Note that there are no errors or warnings if multiple 
+modalities are present.
+
+For specified use of spin echo field maps, i.e. mapping a pair to each
+individual functional run, it is necessary to insert the "IntendedFor"
+field into the bids input sidecar jsons, which specifies a functional
+run for each field map.  This field is explained in greater detail
+within the bids specification.
+
+In the case of multiband (fast TR) data, it is recommended to employ a
+band-stop filter to mitigate artifactually high motion numbers.  The
+band-stop filter used on motion regressors prior to frame-wise
+displacement calculation has parameters which must be chosen based on
+subject respiratory rate.
+
+#### Some current limitations
+
+The ideal motion filtering parameters have not been robustly tested
+across repetition times or populations. Additionally, automatic reading
+of physio data from bids format has not yet been implemented, so the
+proper range should be decided upon carefully.
+
+software does not currently support dynamic acquisition parameters for
+a single modality (e.g. different phase encoding direction for 2 fmri).
+Other parameters would have to be processed by creating separate bids
+datasets for sessions with varied fmri parameters.
+
+#### Known issues 
+
+Error during FMRIVolume when multiple runs exist with same ses-, task- (and optionally run-) label; e.g. runs that must be differentiated by acq- labels (which is currently not accounted for when parsing BIDS filenames of functional runs).
+
+
+
+
+
 

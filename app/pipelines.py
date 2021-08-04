@@ -36,6 +36,10 @@ class ParameterSettings(object):
                       "brain.nii.gz"
     # MNI2mm T2wTemplate
     t2template2mm = "{HCPPIPEDIR_Templates}/MacaqueYerkes19_T2w_1.0mm.nii.gz"
+    # (Optional) T1 brain mask, replaces default masking
+    t1_brain_mask = None
+    # (Optional) T2 brain mask, replaces default masking
+    t2_brain_mask = None
     # Brain mask MNI0.7mm template
     templatemask = "{HCPPIPEDIR_Templates}/MacaqueYerkes19_T1w_0.5mm_brain_" \
                    "mask.nii.gz"
@@ -79,6 +83,21 @@ class ParameterSettings(object):
     # freesurfer default normalization method
     norm_method = 'ADULT_GM_IP'
 
+    # default scale factors for standard deviation of normalized gm, wm, csf 
+    # relative to normalization template
+    norm_gm_std_dev_scale = 1
+    norm_wm_std_dev_scale = 1
+    norm_csf_std_dev_scale = 1
+
+    # use normalized T1w (if it exists) when making white surfaces in FreeSurfer
+    make_white_from_norm_t1 = 'false'
+
+    # create pial surfaces in FreeSurfer with a single pass of mris_make_surfaces 
+    # using hypernormalized T1w brain (if hypernormalization was not omitted); 
+    # omits second pass of mris_make_surfaces (in which the surfaces generated in 
+    # the first pass would be used as priors, and a non-hypernormalized T1w brain is used)
+    single_pass_pial = 'false'  
+
     # @ bold processing defaults @ #
     # brain radius of subject set
     brain_radius = 50
@@ -99,7 +118,11 @@ class ParameterSettings(object):
     # cont frames
     contiguous_frames = 5
     # maximum cortical thickness for FreeSurfer
-    max_cortical_thickness = 5
+    max_cortical_thickness = 5   
+    # aseg file (filename must be "aseg_acpc.nii.gz")
+    aseg = None
+    asegdir = None
+
 
     def __init__(self, bids_data, output_directory):
         """
@@ -173,6 +196,7 @@ class ParameterSettings(object):
         # masking template defaults
         self.studytemplate = self.t1template
         self.studytemplatebrain = self.t1templatebrain
+        
 
         # @ output files @ #
         self.path = os.path.join(output_directory, 'files')
@@ -194,6 +218,17 @@ class ParameterSettings(object):
         self.multitemplatedir = None
         self.sshead = None
         self.ssbrain = None
+        self.aseg = None
+        self.asegdir = None
+
+        # PreFreeSurfer T1w reg method
+        self.t1_reg_method = 'FLIRT_FNIRT'
+
+        # FreeSurfer - make white surfaces from normalized T1
+        self.make_white_from_norm_t1 = 'false'
+
+        # FreeSurfer single pass pial 
+        self.single_pass_pial = 'false'
 
     def __getitem__(self, item):
         return self._params()[item]
@@ -248,8 +283,13 @@ class ParameterSettings(object):
         :param study_template_brain: intermediate registration template brain.
         :return: None
         """
+
         self.studytemplate = study_template
         self.studytemplatebrain = study_template_brain
+    
+    def set_t1_reg_method(self, value):     
+        # set T1w registration method to be used by PreFreeSurfer.
+        self.t1_reg_method = value
 
     def set_templates_dir(self, multi_template_dir):
         """
@@ -258,9 +298,34 @@ class ParameterSettings(object):
         :return: None
         """
         self['multitemplatedir'] = multi_template_dir
-
+    
     def set_hypernormalization_method(self, norm_method):
         self.norm_method = norm_method
+    
+
+    def set_norm_gm_std_dev_scale(self, value):
+        # scaling factor for standard deviation of GM in normalized T1 
+        # (relative to adult normalization reference)
+        self.norm_gm_std_dev_scale = value
+    def set_norm_wm_std_dev_scale(self, value):
+        # scaling factor for standard deviation of WM in normalized T1 
+        # (relative to adult normalization reference)
+        self.norm_wm_std_dev_scale = value
+    def set_norm_csf_std_dev_scale(self, value):
+        # scaling factor for standard deviation of CSF in normalized T1 
+        # (relative to adult normalization reference)
+        self.norm_csf_std_dev_scale = value
+    
+    def set_make_white_from_norm_t1(self, value):
+        # flag to have FreeSurfer use normalized T1 (if it exists)
+        # when making white surfaces with mris_make_surfaces
+        self.make_white_from_norm_t1 = value
+   
+    def set_single_pass_pial(self, value):
+        # flag to have FreeSurfer generate pial surfaces with a single pass
+        # of mris_make_surfaces instead of default two-pass method
+        # (using the output of the first pass as a prior)
+        self.single_pass_pial = value
 
     def set_max_cortical_thickness(self, value):
         # Set the value to send to FreeSurfer.
@@ -268,6 +333,28 @@ class ParameterSettings(object):
             self['max_cortical_thickness'] = value
         else:
             self['max_cortical_thickness'] = 5  # FreeSurfer default is 5 mm.
+    def set_t1_brain_mask(self, t1mask):
+        # Specifies mask to use in place of the default mask generation in
+        # PreliminaryMasking and PreFreeSurfer stages
+        if t1mask:
+            self.t1_brain_mask = t1mask
+    def set_t2_brain_mask(self, t2mask):
+        # Specifies mask to use in place of the default mask generation in
+        # PreliminaryMasking and PreFreeSurfer stages
+        if t2mask:
+            self.t2_brain_mask = t2mask
+    def set_aseg(self, value):
+        # aseg is generated by PreFreeSurfer, but if user wants to pass
+        # a different aseg to FreeSurfer, this allows that to happen.
+        if value:
+            # Set to the path provided.
+            self.aseg = value
+    def set_asegdir(self, value):
+        # aseg is generated by PreFreeSurfer, but if user wants to pass
+        # a different aseg to FreeSurfer, this allows that to happen.
+        if value:
+            # Set to the path provided.
+            self.asegdir = value
 
 
 class Status(object):
@@ -351,7 +438,7 @@ class Stage(object):
 
     attributes:
     config: ParameterSettings object.
-    kwargs: dict of attributes returned from ParamterSettings object.
+    kwargs: dict of attributes returned from ParameterSettings object.
 
     abstract methods which require overriding:
     script: script / tool / executable to run as a subprocess.
@@ -595,6 +682,8 @@ class PreliminaryMasking(Stage):
     spec = ' --path={path}' \
            ' --t1 {t1}' \
            ' --t2 {t2}' \
+           ' --t1brainmask={t1_brain_mask}' \
+           ' --t2brainmask={t2_brain_mask}' \
            ' --func={func}' \
            ' --fmapmag={fmapmag}' \
            ' --sshead={studytemplate}' \
@@ -630,6 +719,8 @@ class PreFreeSurfer(Stage):
            ' --t2template={t2template}' \
            ' --t2templatebrain={t2templatebrain}' \
            ' --t2template2mm={t2template2mm}' \
+           ' --t1brainmask={t1_brain_mask}' \
+           ' --t2brainmask={t2_brain_mask}' \
            ' --templatemask={templatemask}' \
            ' --template2mmmask={template2mmmask}' \
            ' --brainsize={brainsize}' \
@@ -652,10 +743,16 @@ class PreFreeSurfer(Stage):
            ' --printcom={printcom}' \
            ' --fmapmagbrain={fmapmagbrain}' \
            ' --revepi={userevepi}' \
-           ' --multitemplatedir={multitemplatedir}'
+           ' --multitemplatedir={multitemplatedir}' \
+           ' --StudyTemplate={studytemplate}' \
+           ' --StudyTemplateBrain={studytemplatebrain}' \
+           ' --t1regmethod={t1_reg_method}' \
+           ' --asegdir={asegdir} '
 
     def __init__(self, config):
         super(__class__, self).__init__(config)
+        self.kwargs['t1w_path'] = os.path.join(
+            self.kwargs['path'], 'T1w')
         # modify t1/t2 inputs for spec
         self.kwargs['t1'] = '@'.join(self.kwargs.get('t1w'))
         self.kwargs['t2'] = '@'.join(self.kwargs.get('t2w', []))
@@ -664,6 +761,10 @@ class PreFreeSurfer(Stage):
                 self._get_intended_sefmaps()
         else:
             self.kwargs['sephasepos'] = self.kwargs['sephaseneg'] = None
+        if self.kwargs['aseg'] is None:
+            self.kwargs['asegdir'] = self.kwargs['t1w_path']
+        else:
+            self.kwargs['asegdir'] = os.path.dirname(self.kwargs['aseg'])
 
     def _get_intended_sefmaps(self):
         """
@@ -714,6 +815,11 @@ class FreeSurfer(Stage):
            ' --aseg={aseg}' \
            ' --gca={gca}' \
            ' --maxThickness={max_cortical_thickness}' \
+           ' --normgmstddevscale={norm_gm_std_dev_scale}' \
+           ' --normwmstddevscale={norm_wm_std_dev_scale}' \
+           ' --normcsfstddevscale={norm_csf_std_dev_scale}' \
+           ' --makewhitefromnormt1={make_white_from_norm_t1}' \
+           ' --singlepasspial={single_pass_pial}' \
            ' --printcom={printcom}'
 
     def __init__(self, config):
@@ -726,8 +832,9 @@ class FreeSurfer(Stage):
             self.kwargs['freesurferdir'], 'T1w_acpc_dc_restore_brain.nii.gz')
         self.kwargs['t2_restore'] = os.path.join(
             self.kwargs['freesurferdir'], 'T2w_acpc_dc_restore.nii.gz')
-        self.kwargs['aseg'] = os.path.join(
-            self.kwargs['freesurferdir'], 'aseg_acpc.nii.gz')
+        if self.kwargs['aseg'] is None:
+            self.kwargs['aseg'] = os.path.join(
+                self.kwargs['freesurferdir'], 'aseg_acpc.nii.gz')
 
     @property
     def args(self):
