@@ -193,7 +193,7 @@ optional arguments:
                         step. This allows the user to run PreFreeSurfer, apply
                         new, experimental hyper-normalization methods and then
                         restart at FreeSurfer. Default: ADULT_GM_IP.
-    --norm-gm-std-dev-scale SCALE_FACTOR
+  --norm-gm-std-dev-scale SCALE_FACTOR
                         specify, as a floating-point number, the scaling factor
                         for the standard deviation of GM voxels in the 
                         hypernormalized FreeSurfer T1w image relative to the
@@ -202,23 +202,27 @@ optional arguments:
                         may remedy issues with poor surface generation in
                         FreeSurfer when T1w contrast in cortical GM is uneven
                         or weak near the pial surface. Default = 1.
-    --norm-wm-std-dev-scale SCALE_FACTOR
+  --norm-wm-std-dev-scale SCALE_FACTOR
                         specify, as a floating-point number, the scaling factor
                         for the standard deviation of WM voxels in the 
                         hypernormalized FreeSurfer T1w image relative to the
                         standard deviation of the adult reference image.
                         Default = 1.
-    --norm-csf-std-dev-scale SCALE_FACTOR
+  --norm-csf-std-dev-scale SCALE_FACTOR
                         specify, as a floating-point number, the scaling factor
                         for the standard deviation of GM voxels in the 
                         hypernormalized FreeSurfer T1w image relative to the
                         standard deviation of the adult reference image.
                         This option has no effect when used with ADULT_GM_IP
                         hypernormalization. Default = 1.
-    --make-white-from-norm-t1
-                        use normalized T1w volume (if it exists) as input to FreeSurfer's mris_make_surfaces when making white surfaces. Default = False.                     
-    --single-pass-pial
-                        create pial surfaces in FreeSurfer with a single pass of mris_make_surfaces using hypernormalized T1w brain (if hypernormalization was not omitted); omits second pass of mris_make_surfaces (in which the surfaces generated in 
+  --make-white-from-norm-t1
+                        use normalized T1w volume (if it exists) as input to FreeSurfer'
+                        mris_make_surfaces when making white surfaces. Default = False.                     
+  --single-pass-pial
+                        create pial surfaces in FreeSurfer with a single pass of
+                        mris_make_surfaces using hypernormalized T1w brain (if
+                        hypernormalization was not omitted); omits second pass of
+                        mris_make_surfaces (in which the surfaces generated in 
                         the first pass would be used as priors, and a 
                         non-hypernormalized T1w brain is used). Default = False.
 
@@ -260,19 +264,10 @@ Neuroinform. 2014 Apr 28;8:44. doi: 10.3389/fninf.2014.00044. eCollection 2014.
 
 ## Building the Docker Image
 This repository contains the Dockerfile (and other files) needed to create the
-docker image that will contain the BIDs app and the pipeline scripts. In order
-to build the image, you will need to have already built the internal-tools
-docker image.
-
-Whenever you push changes to the dcanlabs/nhp-abcd-bids-pipeline repository on
-GitHub, the pipeline build on DockerHub will be triggered automatically.
-
-If you have made changes to dcanlabs/internal-tools and you want the
-changes to be incorporated into this pipeline, you need to do that explicitly.
-
-Tag the internal-tools release and let it build. Then, go to:
-https://hub.docker.com/repository/docker/dcanlabs/external-software/nhp-abcd-bids-pipeline.
-Click on the "Builds" tab, then on "Trigger" for the build.
+docker image that will contain the BIDs app and the pipeline scripts. This version
+does not require a ready-built DCAN-Labs internal-tools as prior releases have; the
+contents of the internal-tools Dockerfile are now integrated into
+the nhp-abcd-bids-pipeline Dockerfile.
 
 ### Additional Information:
 
