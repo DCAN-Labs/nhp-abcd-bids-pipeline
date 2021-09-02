@@ -271,6 +271,17 @@ the nhp-abcd-bids-pipeline Dockerfile.
 
 ### Additional Information:
 
+#### Pipeline stages
+
+![flowchart-PreliminaryMasking](flowchart_png/nhp_flowchart_0_1_0_premask.png)
+![flowchart-PreFreeSurfer](flowchart_png/nhp_flowchart_0_1_0_prefs.png)
+![flowchart-FreeSurfer](flowchart_png/nhp_flowchart_0_1_0_fs.png)
+![flowchart-PostFreeSurfer](flowchart_png/nhp_flowchart_0_1_0_postfs.png)
+![flowchart-FMRIVolume](flowchart_png/nhp_flowchart_0_1_0_fmrivol.png)
+![flowchart-FMRISurface](flowchart_png/nhp_flowchart_0_1_0_fmrisurf.png)
+![flowchart-DCANBOLDProcessing](flowchart_png/nhp_flowchart_0_1_0_dbp.png)
+![flowchart-ExecutiveSummary](flowchart_png/nhp_flowchart_0_1_0_execsum.png)
+
 #### Outputs
 
 The outputs are organized in the following structure:
@@ -353,16 +364,9 @@ of physio data from bids format has not yet been implemented, so the
 proper range should be decided upon carefully.
 
 software does not currently support dynamic acquisition parameters for
-a single modality (e.g. different phase encoding direction for 2 fmri).
+a single modality e.g. different phase encoding direction for 2 fmri in BIDS 
+dir (but okay to have opposing PE direction scans in BIDS fmap dir for FSL topup). 
 Other parameters would have to be processed by creating separate bids
-datasets for sessions with varied fmri parameters.
-
-#### Known issues 
-
-Error during FMRIVolume when multiple runs exist with same ses-, task- (and optionally run-) label; e.g. runs that must be differentiated by acq- labels (which is currently not accounted for when parsing BIDS filenames of functional runs).
-
-
-
-
-
-
+datasets for sessions with varied fmri parameters. Errors will occur during FMRIVolume
+when multiple runs exist with same BIDS ses-, task- (and optionally run-) label;
+e.g. runs that must be differentiated by acq- label.
