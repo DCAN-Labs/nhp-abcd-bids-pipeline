@@ -1,5 +1,5 @@
 # nhp-abcd-bids-pipeline
-The repository contains the BIDs app for non-human primates (i.e., macaques),
+The repository contains the [BIDS App](https://bids-apps.neuroimaging.io) for non-human primates (i.e., macaques),
 used to run the dcan-macaque-pipeline.
 
 This software takes a BIDS folder as input and determines parameters for the
@@ -10,7 +10,7 @@ subject(s).
 Before running, you will need to load the image onto your Docker service by
 running the following command:
 ```{bash}
-docker pull dcanlabs/nhp-abcd-bids-pipeline
+docker pull dcanumn/nhp-abcd-bids-pipeline
 ```
 If you receive a "no space left on device" error during this pull process, you
 may need to clean up any old/dangling images and containers from the docker
@@ -20,9 +20,9 @@ registry, and possibly increase the amount of space allocated to Docker.
 You can either pull the image from the Docker repository, or build it from the
 repository for the image to be saved in the working directory.
 ```{bash}
-singularity pull docker://dcanlabs/nhp-abcd-bids-pipeline
+singularity pull docker://dcanumn/nhp-abcd-bids-pipeline
 
-singularity build nhp-abcd-bids-pipeline.img docker://dcanlabs/nhp-abcd-bids-pipeline
+singularity build nhp-abcd-bids-pipeline.img docker://dcanumn/nhp-abcd-bids-pipeline
 ```
 These are essentially the same, but in the latter case you have control over the
 name of the file.
@@ -41,7 +41,7 @@ docker run --rm \
     -v /path/to/bids_dataset:/bids_input:ro \
     -v /path/to/outputs:/output \
     -v /path/to/freesurfer/license:/license \
-    dcanlabs/nhp-abcd-bids-pipeline /bids_input /output
+    dcanumn/nhp-abcd-bids-pipeline /bids_input /output
     --freesurfer-license=/license [OPTIONS]
 ```
 Notice that the FreeSurfer license is now mounted directly into the FreeSurfer
@@ -272,6 +272,8 @@ the nhp-abcd-bids-pipeline Dockerfile.
 ### Additional Information:
 
 #### Pipeline stages
+
+See the [pipeline stages summary doc](nhp-abcd-bids-pipeline/blob/master/dcan-macaque-pipeline_v0_1_0_stages_summary.pdf) for key inputs and outputs of each stage, plus tips for reviewing and troubleshooting output.
 
 ![flowchart-PreliminaryMasking](flowchart_png/nhp_flowchart_0_1_0_premask.png)
 ![flowchart-PreFreeSurfer](flowchart_png/nhp_flowchart_0_1_0_prefs.png)
