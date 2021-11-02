@@ -49,6 +49,8 @@ class ParameterSettings(object):
     # Myelin Maps
     refmyelinmaps = "{HCPPIPEDIR_Templates}/standard_mesh_atlases/" \
                     "MacaqueYerkes19.MyelinMap_BC.164k_fs_LR.dscalar.nii"
+    # PreFreeSurfer templates for T1w JLF segmentation
+    multitemplatedir = "{HCPPIPEDIR_Templates}/JointLabelCouncil"  
     # Surface Atlas Templates
     surfatlasdir = "{HCPPIPEDIR_Templates}/standard_mesh_atlases"
     # Grayordinate Templates
@@ -293,8 +295,8 @@ class ParameterSettings(object):
 
     def set_templates_dir(self, multi_template_dir):
         """
-        set template dir for JLF.
-        :param multi_template_dir: intermediate registration template head.
+        set template dir for joint label fusion (JLF).
+        :param multi_template_dir: multi template directory for T1w JLF segmentation 
         :return: None
         """
         self['multitemplatedir'] = multi_template_dir
