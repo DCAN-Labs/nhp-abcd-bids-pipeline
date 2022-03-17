@@ -299,7 +299,7 @@ class ParameterSettings(object):
         :param multi_template_dir: multi template directory for T1w JLF segmentation 
         :return: None
         """
-        self['multitemplatedir'] = multi_template_dir
+        self.multitemplatedir = multi_template_dir
     
     def set_hypernormalization_method(self, norm_method):
         self.norm_method = norm_method
