@@ -37,11 +37,11 @@ export MSMBin=${HCPPIPEDIR}/MSMBinaries
 
 # Set up DCAN Environment Variables
 export SCRATCHDIR=/tmp
-export MCRROOT=/opt/mcr/v96
+export MCRROOT=/opt/mcr/v92
 export DCANBOLDPROCDIR=/opt/dcan-tools/dcan_bold_proc
 export DCANBOLDPROCVER=DCANBOLDProc_v4.0.0
 export EXECSUMDIR=/opt/dcan-tools/executivesummary
-export MATLAB_PREFDIR=/tmp/.matlab/R2019a
+export MATLAB_PREFDIR=/tmp/.matlab/R2017a
 export ABCDTASKPREPDIR=/opt/dcan-tools/ABCD_tfMRI
 export CUSTOMCLEANDIR=/opt/dcan-tools/customclean
 
