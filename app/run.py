@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
-__doc__ = \
-"""The Developmental Cognition and Neuroimaging (DCAN) lab Macaque fMRI
+__doc__ = """The Developmental Cognition and Neuroimaging (DCAN) lab Macaque fMRI
 Pipeline [1].  This BIDS application initiates a functional MRI processing
 pipeline built upon the Human Connectome Project's minimal processing
 pipelines [2].  The application requires only a dataset conformed to the BIDS
@@ -9,8 +8,7 @@ specification, and little-to-no additional configuration on the part of the
 user. BIDS format and applications are explained in detail at
 http://bids.neuroimaging.io/
 """
-__references__ = \
-"""References
+__references__ = """References
 ----------
 [1] dcan-pipelines (for now, please cite [3] in use of this software)
 [2] Glasser, MF. et al. The minimal preprocessing pipelines for the Human
@@ -31,9 +29,18 @@ import argparse
 import os
 
 from helpers import read_bids_dataset, validate_license
-from pipelines import (ParameterSettings, PreliminaryMasking, PreFreeSurfer,
-                       FreeSurfer, PostFreeSurfer, FMRIVolume, FMRISurface,
-                       DCANBOLDProcessing, ExecutiveSummary, CustomClean)
+from pipelines import (
+    ParameterSettings,
+    PreliminaryMasking,
+    PreFreeSurfer,
+    FreeSurfer,
+    PostFreeSurfer,
+    FMRIVolume,
+    FMRISurface,
+    DCANBOLDProcessing,
+    ExecutiveSummary,
+    CustomClean,
+)
 
 # debug
 # import debug
@@ -47,33 +54,35 @@ def _cli():
     parser = generate_parser()
     args = parser.parse_args()
 
-    return interface(args.bids_dir,
-                     args.output_dir,
-                     args.aseg,
-                     args.subject_list,
-                     args.session_list,
-                     args.collect,
-                     args.ncpus,
-                     args.stage,
-                     args.bandstop,
-                     args.max_cortical_thickness,
-                     args.check_outputs_only,
-                     args.t1_brain_mask,
-                     args.t2_brain_mask,
-                     args.study_template,
-                     args.t1_reg_method,
-                     args.cleaning_json,
-                     args.print,
-                     args.ignore_expected_outputs,
-                     args.multi_template_dir,
-                     args.norm_method,
-                     args.norm_gm_std_dev_scale,
-                     args.norm_wm_std_dev_scale,
-                     args.norm_csf_std_dev_scale,
-                     args.make_white_from_norm_t1,
-                     args.single_pass_pial,
-                     args.registration_assist,
-                     args.freesurfer_license)
+    return interface(
+        args.bids_dir,
+        args.output_dir,
+        args.aseg,
+        args.subject_list,
+        args.session_list,
+        args.collect,
+        args.ncpus,
+        args.stage,
+        args.bandstop,
+        args.max_cortical_thickness,
+        args.check_outputs_only,
+        args.t1_brain_mask,
+        args.t2_brain_mask,
+        args.study_template,
+        args.t1_reg_method,
+        args.cleaning_json,
+        args.print,
+        args.ignore_expected_outputs,
+        args.multi_template_dir,
+        args.norm_method,
+        args.norm_gm_std_dev_scale,
+        args.norm_wm_std_dev_scale,
+        args.norm_csf_std_dev_scale,
+        args.make_white_from_norm_t1,
+        args.single_pass_pial,
+        args.registration_assist,
+        args.freesurfer_license,
+    )
 
 
 def generate_parser(parser=None):
@@ -84,232 +93,295 @@ def generate_parser(parser=None):
     """
     if not parser:
         parser = argparse.ArgumentParser(
-            prog='nhp-abcd-bids-pipeline',
+            prog="nhp-abcd-bids-pipeline",
             description=__doc__,
             formatter_class=argparse.RawDescriptionHelpFormatter,
             epilog=__references__,
-            usage='%(prog)s bids_dir output_dir --freesurfer-license=<LICENSE>'
-                  ' [OPTIONS]'
-
+            usage="%(prog)s bids_dir output_dir --freesurfer-license=<LICENSE>" " [OPTIONS]",
         )
     parser.add_argument(
-        'bids_dir',
-        help='path to the input bids dataset root directory.  Read more '
-             'about bids format in the link in the description.  It is '
-             'recommended to use the dcan bids gui or dcm2bids to convert '
-             'from participant dicoms to bids.'
+        "bids_dir",
+        help="path to the input bids dataset root directory.  Read more "
+        "about bids format in the link in the description.  It is "
+        "recommended to use the dcan bids gui or dcm2bids to convert "
+        "from participant dicoms to bids.",
     )
     parser.add_argument(
-        'output_dir',
-        help='path to the output directory for all intermediate and output '
-             'files from the pipeline, also path in which logs are stored.'
+        "output_dir",
+        help="path to the output directory for all intermediate and output "
+        "files from the pipeline, also path in which logs are stored.",
+    )
+    parser.add_argument("--version", "-v", action="version", version="%(prog)s " + __version__)
+    parser.add_argument(
+        "--participant-label",
+        dest="subject_list",
+        metavar="PARTICIPANT_LABEL",
+        nargs="+",
+        help="optional list of participant ids to run. Default is all ids "
+        "found under the bids input directory.  A participant label "
+        'does not include "sub-"',
     )
     parser.add_argument(
-        '--version', '-v', action='version', version='%(prog)s ' + __version__
+        "--session-id",
+        dest="session_list",
+        metavar="SESSION_ID",
+        nargs="+",
+        help="filter input dataset by session id. Default is all ids "
+        "found under the subject input directory(s).  A session id "
+        'does not include "ses-"',
     )
     parser.add_argument(
-        '--participant-label', dest='subject_list', metavar='PARTICIPANT_LABEL', nargs='+',
-        help='optional list of participant ids to run. Default is all ids '
-             'found under the bids input directory.  A participant label '
-             'does not include "sub-"'
+        "--all-sessions",
+        dest="collect",
+        action="store_true",
+        help="collapses all sessions into one when running a subject.",
     )
     parser.add_argument(
-        '--session-id', dest='session_list', metavar='SESSION_ID', nargs='+',
-        help='filter input dataset by session id. Default is all ids '
-             'found under the subject input directory(s).  A session id '
-             'does not include "ses-"'
+        "--ncpus",
+        type=int,
+        default=1,
+        help="number of cores to use for concurrent processing and "
+        "algorithmic speedups.  Warning: causes ANTs and FreeSurfer to "
+        "produce non-deterministic results.",
     )
     parser.add_argument(
-        '--all-sessions', dest='collect', action='store_true',
-        help='collapses all sessions into one when running a subject.'
+        "--freesurfer-license",
+        dest="freesurfer_license",
+        metavar="LICENSE_FILE",
+        help="If using docker or singularity, you will need to acquire and "
+        "provide your own FreeSurfer license. The license can be "
+        "acquired by filling out this form: "
+        "https://surfer.nmr.mgh.harvard.edu/registration.html",
     )
     parser.add_argument(
-        '--ncpus', type=int, default=1,
-        help='number of cores to use for concurrent processing and '
-             'algorithmic speedups.  Warning: causes ANTs and FreeSurfer to '
-             'produce non-deterministic results.'
+        "--stage",
+        help="begin from a given stage, continuing through.  Options: "
+        "PreFreeSurfer, FreeSurfer, PostFreeSurfer, FMRIVolume, "
+        "FMRISurface, DCANBOLDProcessing, ExecutiveSummary",
     )
     parser.add_argument(
-        '--freesurfer-license', dest='freesurfer_license',
-        metavar='LICENSE_FILE',
-        help='If using docker or singularity, you will need to acquire and '
-             'provide your own FreeSurfer license. The license can be '
-             'acquired by filling out this form: '
-             'https://surfer.nmr.mgh.harvard.edu/registration.html'
+        "--bandstop",
+        type=float,
+        nargs=2,
+        metavar=("LOWER", "UPPER"),
+        help="parameters for motion regressor band-stop filter. It is "
+        "recommended for the boundaries to match the inter-quartile "
+        "range for participant group respiratory rate (bpm), or to match "
+        "bids physio data directly [3].  These parameters are highly "
+        "recommended for data acquired with a frequency of approx. 1 Hz "
+        "or more (TR<=1.0). Default is no filter",
     )
     parser.add_argument(
-        '--stage',
-        help='begin from a given stage, continuing through.  Options: '
-             'PreFreeSurfer, FreeSurfer, PostFreeSurfer, FMRIVolume, '
-             'FMRISurface, DCANBOLDProcessing, ExecutiveSummary'
+        "--max-cortical-thickness",
+        type=int,
+        default=5,
+        dest="max_cortical_thickness",
+        help="maximum cortical thickness to allow in FreeSurfer. Default = 5 mm.",
     )
     parser.add_argument(
-        '--bandstop', type=float, nargs=2, metavar=('LOWER', 'UPPER'),
-        help='parameters for motion regressor band-stop filter. It is '
-             'recommended for the boundaries to match the inter-quartile '
-             'range for participant group respiratory rate (bpm), or to match '
-             'bids physio data directly [3].  These parameters are highly '
-             'recommended for data acquired with a frequency of approx. 1 Hz '
-             'or more (TR<=1.0). Default is no filter'
+        "--norm-gm-std-dev-scale",
+        type=float,
+        default=1,
+        dest="norm_gm_std_dev_scale",
+        help="normalized GM standard deviation scale factor (relative to normalization template). "
+        "Modifies the standard deviation of intensity values for GM voxels in the "
+        "hypernormalized T1w image used by FreeSurfer. Default = 1.",
     )
     parser.add_argument(
-        '--max-cortical-thickness', type=int, default=5, dest='max_cortical_thickness',
-        help='maximum cortical thickness to allow in FreeSurfer. Default = 5 mm.'
+        "--norm-wm-std-dev-scale",
+        type=float,
+        default=1,
+        dest="norm_wm_std_dev_scale",
+        help="normalized WM standard deviation scale factor (relative to normalization template). "
+        "Modifies the standard deviation of intensity values for WM voxels in the "
+        "hypernormalized T1w image used by FreeSurfer. Default = 1.",
     )
     parser.add_argument(
-        '--norm-gm-std-dev-scale', type=float, default=1, dest='norm_gm_std_dev_scale',
-        help='normalized GM standard deviation scale factor (relative to normalization template). '
-        'Modifies the standard deviation of intensity values for GM voxels in the '
-        'hypernormalized T1w image used by FreeSurfer. Default = 1.'
+        "--norm-csf-std-dev-scale",
+        type=float,
+        default=1,
+        dest="norm_csf_std_dev_scale",
+        help="normalized CSF standard deviation scale factor (relative to normalization template). "
+        "Modifies the standard deviation of intensity values for CSF voxels in the "
+        "hypernormalized T1w image used by FreeSurfer. Has no effect if used with ADULT_GM_IP "
+        "hypernormalization. Default = 1.",
     )
     parser.add_argument(
-        '--norm-wm-std-dev-scale', type=float, default=1, dest='norm_wm_std_dev_scale',
-        help='normalized WM standard deviation scale factor (relative to normalization template). '
-        'Modifies the standard deviation of intensity values for WM voxels in the '
-        'hypernormalized T1w image used by FreeSurfer. Default = 1.'
+        "--make-white-from-norm-t1",
+        dest="make_white_from_norm_t1",
+        action="store_true",
+        help="use normalized T1w volume (if it exists) as input to FreeSurfer's "
+        "mris_make_surfaces when making white surfaces. Default = False. ",
     )
     parser.add_argument(
-        '--norm-csf-std-dev-scale', type=float, default=1, dest='norm_csf_std_dev_scale',
-        help='normalized CSF standard deviation scale factor (relative to normalization template). '
-        'Modifies the standard deviation of intensity values for CSF voxels in the '
-        'hypernormalized T1w image used by FreeSurfer. Has no effect if used with ADULT_GM_IP '
-        'hypernormalization. Default = 1.'
-    )           
-    parser.add_argument(
-        '--make-white-from-norm-t1', dest='make_white_from_norm_t1', action='store_true',
-        help='use normalized T1w volume (if it exists) as input to FreeSurfer\'s ' 
-        'mris_make_surfaces when making white surfaces. Default = False. '
-    )     
-    parser.add_argument(
-        '--single-pass-pial', dest='single_pass_pial', action='store_true',
-        help='create pial surfaces in FreeSurfer with a single pass of mris_make_surfaces ' 
-        'using hypernormalized T1w brain (if hypernormalization was not omitted); '
-        'omits second pass of mris_make_surfaces (in which the surfaces generated in '
-        'the first pass would be used as priors, and a non-hypernormalized T1w brain is used). '
-        'Default = False.'
+        "--single-pass-pial",
+        dest="single_pass_pial",
+        action="store_true",
+        help="create pial surfaces in FreeSurfer with a single pass of mris_make_surfaces "
+        "using hypernormalized T1w brain (if hypernormalization was not omitted); "
+        "omits second pass of mris_make_surfaces (in which the surfaces generated in "
+        "the first pass would be used as priors, and a non-hypernormalized T1w brain is used). "
+        "Default = False.",
     )
     parser.add_argument(
-        '--registration-assist', nargs=2, metavar=('MOVING', 'REFERENCE'),
-        help='provide two task/run names, a moving and a reference image to '
-             'assist anatomical registration. Use case: ferumoxytol enhanced '
-             'fmri do not register consistently to T1w images under typical '
-             'FSL flirt metrics. Using a bold image as a reference can '
-             'help with this issue. e.g. task-CErest01 task-rest01'
+        "--registration-assist",
+        nargs=2,
+        metavar=("MOVING", "REFERENCE"),
+        help="provide two task/run names, a moving and a reference image to "
+        "assist anatomical registration. Use case: ferumoxytol enhanced "
+        "fmri do not register consistently to T1w images under typical "
+        "FSL flirt metrics. Using a bold image as a reference can "
+        "help with this issue. e.g. task-CErest01 task-rest01",
     )
     extras = parser.add_argument_group(
-        'special pipeline options',
-        description='options which pertain to an alternative pipeline or an '
-                    'extra stage which is not\n inferred from the bids data.'
+        "special pipeline options",
+        description="options which pertain to an alternative pipeline or an "
+        "extra stage which is not\n inferred from the bids data.",
     )
     extras.add_argument(
-        '--custom-clean', metavar='JSON', dest='cleaning_json',
-        help='runs dcan cleaning script after the pipeline completes'
-             'successfully to delete pipeline outputs based on '
-             'the file structure specified in the custom-clean json.'
+        "--custom-clean",
+        metavar="JSON",
+        dest="cleaning_json",
+        help="runs dcan cleaning script after the pipeline completes"
+        "successfully to delete pipeline outputs based on "
+        "the file structure specified in the custom-clean json.",
     )
     parser.add_argument(
-        '--aseg', type=str, dest='aseg',
+        "--aseg",
+        type=str,
+        dest="aseg",
         default=None,
-        metavar='PATH',
-        help='specify  aseg file to be used by FreeSurfer. '
-             'Specified file must be named \"aseg_acpc.nii.gz\" '
-             'Replaces the default aseg_acpc_nii.gz generated '
-             'in PreFreeSurfer in subject\'s T1w directory. '
-             'Default: aseg generated by PreFreeSurfer. '
-    )    
+        metavar="PATH",
+        help="specify  aseg file to be used by FreeSurfer. "
+        'Specified file must be named "aseg_acpc.nii.gz" '
+        "Replaces the default aseg_acpc_nii.gz generated "
+        "in PreFreeSurfer in subject's T1w directory. "
+        "Default: aseg generated by PreFreeSurfer. ",
+    )
     parser.add_argument(
-        '--t1-brain-mask', type=str, dest='t1_brain_mask',
+        "--t1-brain-mask",
+        type=str,
+        dest="t1_brain_mask",
         default=None,
-        metavar='PATH',
-        help='specify the path to the mask file. The file specified will be used '
-             'in place of the default mask generation in PreliminaryMasking '
-             'and PreFreeSurfer stages'
-             'Default: mask generated by PreliminaryMasking and PreFreeSurfer. '
+        metavar="PATH",
+        help="specify the path to the mask file. The file specified will be used "
+        "in place of the default mask generation in PreliminaryMasking "
+        "and PreFreeSurfer stages"
+        "Default: mask generated by PreliminaryMasking and PreFreeSurfer. ",
     )
     parser.add_argument(
-        '--t2-brain-mask', type=str, dest='t2_brain_mask',
+        "--t2-brain-mask",
+        type=str,
+        dest="t2_brain_mask",
         default=None,
-        metavar='PATH',
-        help='specify the path to the mask file. The file specified will be used '
-             'in place of the default mask generation in PreliminaryMasking '
-             'and PreFreeSurfer stages'
-             'Default: mask generated by PreliminaryMasking and PreFreeSurfer. '
+        metavar="PATH",
+        help="specify the path to the mask file. The file specified will be used "
+        "in place of the default mask generation in PreliminaryMasking "
+        "and PreFreeSurfer stages"
+        "Default: mask generated by PreliminaryMasking and PreFreeSurfer. ",
     )
     parser.add_argument(
-        '--study-template', nargs=2, metavar=('HEAD', 'BRAIN'),
-        help='template head and brain images for masking nonlinear. '
-             'Effective to account for population head shape differences in '
-             'male/female and in separate age categories, or for differences '
-             'in anatomical field of view. Default is to use the Yerkes19 '
-             'Template.'
+        "--study-template",
+        nargs=2,
+        metavar=("HEAD", "BRAIN"),
+        help="template head and brain images for masking nonlinear. "
+        "Effective to account for population head shape differences in "
+        "male/female and in separate age categories, or for differences "
+        "in anatomical field of view. Default is to use the Yerkes19 "
+        "Template.",
     )
     parser.add_argument(
-        '--t1-reg-method', dest='t1_reg_method',
-        default='FLIRT_FNIRT',
-        choices=['FLIRT_FNIRT', 'ANTS', 'ANTS_NO_INTERMEDIATE'],
-        help='specify the method used to register subject T1w to '
-             'reference during PreFreeSurfer. '
-             'FLIRT_FNIRT performs FLIRT and FNIRT registration to reference. '
-             'ANTS performs intermediate registration to study template, '
-             'then registers to reference, using antsRegistrationSyN for both. '
-             'ANTS_NO_INTERMEDIATE registers directly to reference '
-             'with antsRegistrationSyN. '
-             'Default: FLIRT_FNIRT.'
-    )        
+        "--t1-reg-method",
+        dest="t1_reg_method",
+        default="FLIRT_FNIRT",
+        choices=["FLIRT_FNIRT", "ANTS", "ANTS_NO_INTERMEDIATE"],
+        help="specify the method used to register subject T1w to "
+        "reference during PreFreeSurfer. "
+        "FLIRT_FNIRT performs FLIRT and FNIRT registration to reference. "
+        "ANTS performs intermediate registration to study template, "
+        "then registers to reference, using antsRegistrationSyN for both. "
+        "ANTS_NO_INTERMEDIATE registers directly to reference "
+        "with antsRegistrationSyN. "
+        "Default: FLIRT_FNIRT.",
+    )
     runopts = parser.add_argument_group(
-        'runtime options',
-        description='special changes to runtime behaviors. Debugging features.'
+        "runtime options", description="special changes to runtime behaviors. Debugging features."
     )
     runopts.add_argument(
-        '--check-outputs-only', action='store_true',
-        help='checks for the existence of outputs for each stage then exit. '
-             'Useful for debugging.'
+        "--check-outputs-only",
+        action="store_true",
+        help="checks for the existence of outputs for each stage then exit. " "Useful for debugging.",
     )
     runopts.add_argument(
-        '--print-commands-only', action='store_true', dest='print',
-        help='print run commands for each stage to shell then exit.'
+        "--print-commands-only",
+        action="store_true",
+        dest="print",
+        help="print run commands for each stage to shell then exit.",
     )
     runopts.add_argument(
-        '--ignore-expected-outputs', action='store_true',
-        help='continues pipeline even if some expected outputs are missing.'
+        "--ignore-expected-outputs",
+        action="store_true",
+        help="continues pipeline even if some expected outputs are missing.",
     )
     parser.add_argument(
-        '--multi-template-dir',
-        help='directory for joint label fusion templates. It should contain '
-             'only folders which each contain a "T1w_brain.nii.gz" and a '
-             '"Segmentation.nii.gz". Each subdirectory may have any name and '
-             'any number of additional files.'
+        "--multi-template-dir",
+        help="directory for joint label fusion templates. It should contain "
+        'only folders which each contain a "T1w_brain.nii.gz" and a '
+        '"Segmentation.nii.gz". Each subdirectory may have any name and '
+        "any number of additional files.",
     )
     parser.add_argument(
-        '--hyper-normalization-method', dest='norm_method',
-        default='ADULT_GM_IP',
-        choices=['ADULT_GM_IP', 'ROI_IPS', 'NONE'],
-        help='specify the intensity profiles to use for the hyper-'
-             'normalization step in FreeSurfer: '
-             'ADULT_GM_IP adjusts the entire base image such that the IP '
-             'of GM in the target roughly matches the IP of GM of the '
-             'reference (i.e., the adult freesurfer atlas). Then the WM '
-             'is shifted in the target image to match the histogram of WM '
-             'in the reference. '
-             'ROI_IPS adjusts the intensity profile of each ROI (GM, WM, '
-             'CSF) separately and reassembles the parts. '
-             'NONE skips hyper-normalization step. This allows the user '
-             'to run PreFreeSurfer, apply new, experimental hyper-'
-             'normalization methods and then restart at FreeSurfer. '
-             'Default: ADULT_GM_IP.'
+        "--hyper-normalization-method",
+        dest="norm_method",
+        default="ADULT_GM_IP",
+        choices=["ADULT_GM_IP", "ROI_IPS", "NONE"],
+        help="specify the intensity profiles to use for the hyper-"
+        "normalization step in FreeSurfer: "
+        "ADULT_GM_IP adjusts the entire base image such that the IP "
+        "of GM in the target roughly matches the IP of GM of the "
+        "reference (i.e., the adult freesurfer atlas). Then the WM "
+        "is shifted in the target image to match the histogram of WM "
+        "in the reference. "
+        "ROI_IPS adjusts the intensity profile of each ROI (GM, WM, "
+        "CSF) separately and reassembles the parts. "
+        "NONE skips hyper-normalization step. This allows the user "
+        "to run PreFreeSurfer, apply new, experimental hyper-"
+        "normalization methods and then restart at FreeSurfer. "
+        "Default: ADULT_GM_IP.",
     )
 
     return parser
 
 
-def interface(bids_dir, output_dir, aseg=None, subject_list=None, session_list=None,
-              collect=False, ncpus=1, start_stage=None, bandstop_params=None,
-              max_cortical_thickness=5, check_only=False, t1_brain_mask=None, t2_brain_mask=None,
-              study_template=None, t1_reg_method='FLIRT_FNIRT', cleaning_json=None, print_commands=False,
-              ignore_expected_outputs=False, multi_template_dir=None, norm_method=None,
-              norm_gm_std_dev_scale=1, norm_wm_std_dev_scale=1, norm_csf_std_dev_scale=1,
-              make_white_from_norm_t1=False, single_pass_pial=False, registration_assist=None,
-              freesurfer_license=None):
+def interface(
+    bids_dir,
+    output_dir,
+    aseg=None,
+    subject_list=None,
+    session_list=None,
+    collect=False,
+    ncpus=1,
+    start_stage=None,
+    bandstop_params=None,
+    max_cortical_thickness=5,
+    check_only=False,
+    t1_brain_mask=None,
+    t2_brain_mask=None,
+    study_template=None,
+    t1_reg_method="FLIRT_FNIRT",
+    cleaning_json=None,
+    print_commands=False,
+    ignore_expected_outputs=False,
+    multi_template_dir=None,
+    norm_method=None,
+    norm_gm_std_dev_scale=1,
+    norm_wm_std_dev_scale=1,
+    norm_csf_std_dev_scale=1,
+    make_white_from_norm_t1=False,
+    single_pass_pial=False,
+    registration_assist=None,
+    freesurfer_license=None,
+):
     """
     main application interface
     :param bids_dir: input bids dataset see "helpers.read_bids_dataset" for
@@ -334,9 +406,11 @@ def interface(bids_dir, output_dir, aseg=None, subject_list=None, session_list=N
     :param norm_method: which method will be used for hyper-normalization step.
     :param norm_gm_std_dev_scale: scale factor for normalized GM standard deviation (relative to normalization template)
     :param norm_wm_std_dev_scale: scale factor for normalized WM standard deviation (relative to normalization template)
-    :param norm_csf_std_dev_scale: scale factor for normalized CSF standard deviation (relative to normalization template)
+    :param norm_csf_std_dev_scale: scale factor for normalized CSF standard deviation (relative to normalization
+    template)
     :param make_white_from_norm_t1: generate white surfaces in FreeSurfer from normalized T1w
-    :param single_pass_pial: generate pial surfaces in FreeSurfer with a single pass of mris_make_surfaces instead of default two-pass method (using surfaces generated in first pass create priors)
+    :param single_pass_pial: generate pial surfaces in FreeSurfer with a single pass of mris_make_surfaces instead of
+    default two-pass method (using surfaces generated in first pass create priors)
     :return:
     """
 
@@ -344,21 +418,15 @@ def interface(bids_dir, output_dir, aseg=None, subject_list=None, session_list=N
         validate_license(freesurfer_license)
 
     # read from bids dataset
-    assert os.path.isdir(bids_dir), bids_dir + ' is not a directory!'
+    assert os.path.isdir(bids_dir), bids_dir + " is not a directory!"
     if not os.path.isdir(output_dir):
         os.makedirs(output_dir)
-    session_generator = read_bids_dataset(
-        bids_dir, subject_list=subject_list, session_list=session_list
-    )
+    session_generator = read_bids_dataset(bids_dir, subject_list=subject_list, session_list=session_list)
 
     # run each session in serial
     for session in session_generator:
         # setup session configuration
-        out_dir = os.path.join(
-            output_dir,
-            'sub-%s' % session['subject'],
-            'ses-%s' % session['session']
-        )
+        out_dir = os.path.join(output_dir, "sub-%s" % session["subject"], "ses-%s" % session["session"])
         session_spec = ParameterSettings(session, out_dir)
         if aseg is not None:
             session_spec.set_aseg(aseg)
@@ -368,11 +436,11 @@ def interface(bids_dir, output_dir, aseg=None, subject_list=None, session_list=N
             session_spec.set_hypernormalization_method("ADULT_GM_IP")
         else:
             session_spec.set_hypernormalization_method(norm_method)
-        if norm_gm_std_dev_scale is not 1:
+        if norm_gm_std_dev_scale != 1:
             session_spec.set_norm_gm_std_dev_scale(norm_gm_std_dev_scale)
-        if norm_wm_std_dev_scale is not 1:
+        if norm_wm_std_dev_scale != 1:
             session_spec.set_norm_wm_std_dev_scale(norm_wm_std_dev_scale)
-        if norm_csf_std_dev_scale is not 1:
+        if norm_csf_std_dev_scale != 1:
             session_spec.set_norm_csf_std_dev_scale(norm_csf_std_dev_scale)
         if make_white_from_norm_t1 is not False:
             session_spec.set_make_white_from_norm_t1(make_white_from_norm_t1)
@@ -391,7 +459,7 @@ def interface(bids_dir, output_dir, aseg=None, subject_list=None, session_list=N
             session_spec.set_study_templates(*study_template)
         if multi_template_dir is not None:
             session_spec.set_templates_dir(multi_template_dir)
-        if max_cortical_thickness is not 5:
+        if max_cortical_thickness != 5:
             session_spec.set_max_cortical_thickness(max_cortical_thickness)
 
         # create pipelines
@@ -420,15 +488,13 @@ def interface(bids_dir, output_dir, aseg=None, subject_list=None, session_list=N
 
         if start_stage:
             names = [x.__class__.__name__ for x in order]
-            assert start_stage in names, \
-                '"%s" is unknown, check class name and case for given stage' \
-                % start_stage
-            order = order[names.index(start_stage):]
+            assert start_stage in names, '"%s" is unknown, check class name and case for given stage' % start_stage
+            order = order[names.index(start_stage) :]
 
         # special runtime options
         if check_only:
             for stage in order:
-                print('checking outputs for %s' % stage.__class__.__name__)
+                print("checking outputs for %s" % stage.__class__.__name__)
                 try:
                     stage.check_expected_outputs()
                 except AssertionError:
@@ -440,17 +506,17 @@ def interface(bids_dir, output_dir, aseg=None, subject_list=None, session_list=N
                 stage.deactivate_check_expected_outputs()
                 stage.deactivate_remove_expected_outputs()
         if ignore_expected_outputs:
-            print('ignoring checks for expected outputs.')
+            print("ignoring checks for expected outputs.")
             for stage in order:
                 stage.activate_ignore_expected_outputs()
 
         # run pipelines
         for stage in order:
-            print('nhp-abcd-bids-pipeline v%s' % __version__)
-            print('running %s' % stage.__class__.__name__)
+            print("nhp-abcd-bids-pipeline v%s" % __version__)
+            print("running %s" % stage.__class__.__name__)
             print(stage)
             stage.run(ncpus)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     _cli()

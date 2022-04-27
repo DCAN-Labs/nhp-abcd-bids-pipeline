@@ -5,8 +5,7 @@ import subprocess
 
 import os
 
-from helpers import (get_contrast_agent, get_fmriname, get_readoutdir,
-                     get_relpath, get_taskname, ijk_to_xyz)
+from helpers import get_contrast_agent, get_fmriname, get_readoutdir, get_relpath, get_taskname, ijk_to_xyz
 
 
 class ParameterSettings(object):
@@ -25,15 +24,13 @@ class ParameterSettings(object):
     # MNI0.7mm template
     t1template = "{HCPPIPEDIR_Templates}/MacaqueYerkes19_T1w_0.5mm.nii.gz"
     # Brain extracted MNI0.7mm template
-    t1templatebrain = "{HCPPIPEDIR_Templates}/MacaqueYerkes19_T1w_0.5mm_" \
-                      "brain.nii.gz"
+    t1templatebrain = "{HCPPIPEDIR_Templates}/MacaqueYerkes19_T1w_0.5mm_" "brain.nii.gz"
     # MNI2mm template
     t1template2mm = "{HCPPIPEDIR_Templates}/MacaqueYerkes19_T1w_1.0mm.nii.gz"
     # MNI0.7mm T2wTemplate
     t2template = "{HCPPIPEDIR_Templates}/MacaqueYerkes19_T2w_0.5mm.nii.gz"
     # Brain extracted MNI0.7mm T2wTemplate
-    t2templatebrain = "{HCPPIPEDIR_Templates}/MacaqueYerkes19_T2w_0.5mm_" \
-                      "brain.nii.gz"
+    t2templatebrain = "{HCPPIPEDIR_Templates}/MacaqueYerkes19_T2w_0.5mm_" "brain.nii.gz"
     # MNI2mm T2wTemplate
     t2template2mm = "{HCPPIPEDIR_Templates}/MacaqueYerkes19_T2w_1.0mm.nii.gz"
     # (Optional) T1 brain mask, replaces default masking
@@ -41,16 +38,15 @@ class ParameterSettings(object):
     # (Optional) T2 brain mask, replaces default masking
     t2_brain_mask = None
     # Brain mask MNI0.7mm template
-    templatemask = "{HCPPIPEDIR_Templates}/MacaqueYerkes19_T1w_0.5mm_brain_" \
-                   "mask.nii.gz"
+    templatemask = "{HCPPIPEDIR_Templates}/MacaqueYerkes19_T1w_0.5mm_brain_" "mask.nii.gz"
     # MNI2mm template
-    template2mmmask = "{HCPPIPEDIR_Templates}/MacaqueYerkes19_T1w_1.0mm_" \
-                      "brain_mask.nii.gz"
+    template2mmmask = "{HCPPIPEDIR_Templates}/MacaqueYerkes19_T1w_1.0mm_" "brain_mask.nii.gz"
     # Myelin Maps
-    refmyelinmaps = "{HCPPIPEDIR_Templates}/standard_mesh_atlases/" \
-                    "MacaqueYerkes19.MyelinMap_BC.164k_fs_LR.dscalar.nii"
+    refmyelinmaps = (
+        "{HCPPIPEDIR_Templates}/standard_mesh_atlases/" "MacaqueYerkes19.MyelinMap_BC.164k_fs_LR.dscalar.nii"
+    )
     # PreFreeSurfer templates for T1w JLF segmentation
-    multitemplatedir = "{HCPPIPEDIR_Templates}/JointLabelCouncil"  
+    multitemplatedir = "{HCPPIPEDIR_Templates}/JointLabelCouncil"
     # Surface Atlas Templates
     surfatlasdir = "{HCPPIPEDIR_Templates}/standard_mesh_atlases"
     # Grayordinate Templates
@@ -73,32 +69,31 @@ class ParameterSettings(object):
     hiresmesh = "164"
     lowresmesh = "32"
     # motion correction method
-    mctype = 'MCFLIRT'
+    mctype = "MCFLIRT"
 
     # @ configuration files @ #
     topupconfig = "{HCPPIPEDIR_Config}/b02b0.cnf"
     fnirtconfig = "{HCPPIPEDIR_Config}/T1_2_MNI152_2mm.cnf"
     freesurferlabels = "{HCPPIPEDIR_Config}/FreeSurferAllLut.txt"
-    subcortgraylabels = "{HCPPIPEDIR_Config}/FreeSurferSubcortical" \
-                            "LabelTableLut.txt"
+    subcortgraylabels = "{HCPPIPEDIR_Config}/FreeSurferSubcortical" "LabelTableLut.txt"
 
     # freesurfer default normalization method
-    norm_method = 'ADULT_GM_IP'
+    norm_method = "ADULT_GM_IP"
 
-    # default scale factors for standard deviation of normalized gm, wm, csf 
+    # default scale factors for standard deviation of normalized gm, wm, csf
     # relative to normalization template
     norm_gm_std_dev_scale = 1
     norm_wm_std_dev_scale = 1
     norm_csf_std_dev_scale = 1
 
     # use normalized T1w (if it exists) when making white surfaces in FreeSurfer
-    make_white_from_norm_t1 = 'false'
+    make_white_from_norm_t1 = "false"
 
-    # create pial surfaces in FreeSurfer with a single pass of mris_make_surfaces 
-    # using hypernormalized T1w brain (if hypernormalization was not omitted); 
-    # omits second pass of mris_make_surfaces (in which the surfaces generated in 
+    # create pial surfaces in FreeSurfer with a single pass of mris_make_surfaces
+    # using hypernormalized T1w brain (if hypernormalization was not omitted);
+    # omits second pass of mris_make_surfaces (in which the surfaces generated in
     # the first pass would be used as priors, and a non-hypernormalized T1w brain is used)
-    single_pass_pial = 'false'  
+    single_pass_pial = "false"
 
     # @ bold processing defaults @ #
     # brain radius of subject set
@@ -110,7 +105,7 @@ class ParameterSettings(object):
     lower_bpf = 0.009
     upper_bpf = 0.080
     # motion regressor bandstop filter parameters
-    motion_filter_type = 'notch'
+    motion_filter_type = "notch"
     motion_filter_order = 4
     band_stop_min = None
     band_stop_max = None
@@ -120,11 +115,10 @@ class ParameterSettings(object):
     # cont frames
     contiguous_frames = 5
     # maximum cortical thickness for FreeSurfer
-    max_cortical_thickness = 5   
+    max_cortical_thickness = 5
     # aseg file (filename must be "aseg_acpc.nii.gz")
     aseg = None
     asegdir = None
-
 
     def __init__(self, bids_data, output_directory):
         """
@@ -136,44 +130,39 @@ class ParameterSettings(object):
         # input bids data struct
         self.bids_data = bids_data
         # @ parameters read from bids @ #
-        self.t1w = self.bids_data['t1w']
-        self.t1samplespacing = \
-            '%.12f' % self.bids_data['t1w_metadata']['DwellTime']
-        self.t1samplespacing = self.t1samplespacing.rstrip('0')
+        self.t1w = self.bids_data["t1w"]
+        self.t1samplespacing = "%.12f" % self.bids_data["t1w_metadata"]["DwellTime"]
+        self.t1samplespacing = self.t1samplespacing.rstrip("0")
 
-
-        if 'T2w' in self.bids_data['types']:
-            self.useT2 = 'true'
-            self.t2w = self.bids_data['t2w']
-            self.t2samplespacing = \
-                '%.12f' % self.bids_data['t2w_metadata']['DwellTime']
-            self.t2samplespacing = self.t2samplespacing.rstrip('0')
+        if "T2w" in self.bids_data["types"]:
+            self.useT2 = "true"
+            self.t2w = self.bids_data["t2w"]
+            self.t2samplespacing = "%.12f" % self.bids_data["t2w_metadata"]["DwellTime"]
+            self.t2samplespacing = self.t2samplespacing.rstrip("0")
         else:
-            self.useT2 = 'false'
+            self.useT2 = "false"
             self.t2w = []
             self.t2samplespacing = None
 
         # distortion correction method: TOPUP, FIELDMAP, or NONE, inferred
         # from files, defaults to spin echo (topup) if both field maps exist
-        self.unwarpdir = get_readoutdir(self.bids_data['t1w_metadata'])
-        if 'epi' in self.bids_data['types']:
-            self.dcmethod = 'TOPUP'
+        self.unwarpdir = get_readoutdir(self.bids_data["t1w_metadata"])
+        if "epi" in self.bids_data["types"]:
+            self.dcmethod = "TOPUP"
             # spin echo field map spacing @TODO read during volume per fmap?
-            self.echospacing = self.bids_data['fmap_metadata']['positive'][0][
-                'EffectiveEchoSpacing']
-            self.echospacing = ('%.12f' % self.echospacing).rstrip('0')
+            self.echospacing = self.bids_data["fmap_metadata"]["positive"][0]["EffectiveEchoSpacing"]
+            self.echospacing = ("%.12f" % self.echospacing).rstrip("0")
             # distortion correction phase encoding direction
-            self.seunwarpdir = ijk_to_xyz(
-                self.bids_data['func_metadata'][0]['PhaseEncodingDirection'])
+            self.seunwarpdir = ijk_to_xyz(self.bids_data["func_metadata"][0]["PhaseEncodingDirection"])
 
             # set unused fmap parameters to none
-            self.fmapmag = self.fmapphase = self.fmapgeneralelectric = \
-                self.echodiff = self.gdcoeffs = self.userevepi = \
-                self.fmapmagbrain = None
+            self.fmapmag = (
+                self.fmapphase
+            ) = self.fmapgeneralelectric = self.echodiff = self.gdcoeffs = self.userevepi = self.fmapmagbrain = None
             # @TODO decide on bfcmethod for fmri data.
 
-        elif 'magnitude' in self.bids_data['types']:
-            self.dcmethod = 'FIELDMAP'
+        elif "magnitude" in self.bids_data["types"]:
+            self.dcmethod = "FIELDMAP"
             # gradient field map delta TE
             self.echodiff = None  # @TODO
 
@@ -184,12 +173,17 @@ class ParameterSettings(object):
             pass
         else:
             # all distortion correction parameters set to none
-            self.fmapmag = self.fmapphase = self.fmapgeneralelectric = \
-                self.echodiff = self.gdcoeffs = self.dcmethod = \
-                self.seunwarpdir = self.echospacing = self.userevepi = \
-                self.fmapmagbrain = None
+            self.fmapmag = (
+                self.fmapphase
+            ) = (
+                self.fmapgeneralelectric
+            ) = (
+                self.echodiff
+            ) = (
+                self.gdcoeffs
+            ) = self.dcmethod = self.seunwarpdir = self.echospacing = self.userevepi = self.fmapmagbrain = None
 
-        if not hasattr(self, 'fmribfcmethod'):
+        if not hasattr(self, "fmribfcmethod"):
             self.fmribfcmethod = None
 
         # @TODO handle bids formatted physio data
@@ -198,23 +192,22 @@ class ParameterSettings(object):
         # masking template defaults
         self.studytemplate = self.t1template
         self.studytemplatebrain = self.t1templatebrain
-        
 
         # @ output files @ #
-        self.path = os.path.join(output_directory, 'files')
-        self.logs = os.path.join(output_directory, 'logs')
-        self.subject = self.bids_data['subject']
-        self.session = self.bids_data['session']
+        self.path = os.path.join(output_directory, "files")
+        self.logs = os.path.join(output_directory, "logs")
+        self.subject = self.bids_data["subject"]
+        self.session = self.bids_data["session"]
 
         # Exec summ doesn't need this anymore. KJS 11/6/18
-        #deriv_root = self.path.split('/')[:-3]
-        #self.deriv = '/'.join(deriv_root)
+        # deriv_root = self.path.split('/')[:-3]
+        # self.deriv = '/'.join(deriv_root)
 
         # @ input files @ #
-        session_root = '/'.join(self.t1w[0].split('/')[:-2])
-        self.unproc = os.path.join(session_root, 'func')
+        session_root = "/".join(self.t1w[0].split("/")[:-2])
+        self.unproc = os.path.join(session_root, "func")
         # print command for HCP
-        self.printcom = ''
+        self.printcom = ""
 
         # masking and segmentation atlases
         self.multitemplatedir = None
@@ -224,13 +217,13 @@ class ParameterSettings(object):
         self.asegdir = None
 
         # PreFreeSurfer T1w reg method
-        self.t1_reg_method = 'FLIRT_FNIRT'
+        self.t1_reg_method = "FLIRT_FNIRT"
 
         # FreeSurfer - make white surfaces from normalized T1
-        self.make_white_from_norm_t1 = 'false'
+        self.make_white_from_norm_t1 = "false"
 
-        # FreeSurfer single pass pial 
-        self.single_pass_pial = 'false'
+        # FreeSurfer single pass pial
+        self.single_pass_pial = "false"
 
     def __getitem__(self, item):
         return self._params()[item]
@@ -244,7 +237,7 @@ class ParameterSettings(object):
         :return: dictionary of class parameter names and values.
         """
         params = inspect.getmembers(self, lambda a: not inspect.isroutine(a))
-        params = {x[0]: x[1] for x in params if not x[0].startswith('_')}
+        params = {x[0]: x[1] for x in params if not x[0].startswith("_")}
         return params
 
     def _format(self):
@@ -288,41 +281,42 @@ class ParameterSettings(object):
 
         self.studytemplate = study_template
         self.studytemplatebrain = study_template_brain
-    
-    def set_t1_reg_method(self, value):     
+
+    def set_t1_reg_method(self, value):
         # set T1w registration method to be used by PreFreeSurfer.
         self.t1_reg_method = value
 
     def set_templates_dir(self, multi_template_dir):
         """
         set template dir for joint label fusion (JLF).
-        :param multi_template_dir: multi template directory for T1w JLF segmentation 
+        :param multi_template_dir: multi template directory for T1w JLF segmentation
         :return: None
         """
         self.multitemplatedir = multi_template_dir
-    
+
     def set_hypernormalization_method(self, norm_method):
         self.norm_method = norm_method
-    
 
     def set_norm_gm_std_dev_scale(self, value):
-        # scaling factor for standard deviation of GM in normalized T1 
+        # scaling factor for standard deviation of GM in normalized T1
         # (relative to adult normalization reference)
         self.norm_gm_std_dev_scale = value
+
     def set_norm_wm_std_dev_scale(self, value):
-        # scaling factor for standard deviation of WM in normalized T1 
+        # scaling factor for standard deviation of WM in normalized T1
         # (relative to adult normalization reference)
         self.norm_wm_std_dev_scale = value
+
     def set_norm_csf_std_dev_scale(self, value):
-        # scaling factor for standard deviation of CSF in normalized T1 
+        # scaling factor for standard deviation of CSF in normalized T1
         # (relative to adult normalization reference)
         self.norm_csf_std_dev_scale = value
-    
+
     def set_make_white_from_norm_t1(self, value):
         # flag to have FreeSurfer use normalized T1 (if it exists)
         # when making white surfaces with mris_make_surfaces
         self.make_white_from_norm_t1 = value
-   
+
     def set_single_pass_pial(self, value):
         # flag to have FreeSurfer generate pial surfaces with a single pass
         # of mris_make_surfaces instead of default two-pass method
@@ -332,25 +326,29 @@ class ParameterSettings(object):
     def set_max_cortical_thickness(self, value):
         # Set the value to send to FreeSurfer.
         if value:
-            self['max_cortical_thickness'] = value
+            self["max_cortical_thickness"] = value
         else:
-            self['max_cortical_thickness'] = 5  # FreeSurfer default is 5 mm.
+            self["max_cortical_thickness"] = 5  # FreeSurfer default is 5 mm.
+
     def set_t1_brain_mask(self, t1mask):
         # Specifies mask to use in place of the default mask generation in
         # PreliminaryMasking and PreFreeSurfer stages
         if t1mask:
             self.t1_brain_mask = t1mask
+
     def set_t2_brain_mask(self, t2mask):
         # Specifies mask to use in place of the default mask generation in
         # PreliminaryMasking and PreFreeSurfer stages
         if t2mask:
             self.t2_brain_mask = t2mask
+
     def set_aseg(self, value):
         # aseg is generated by PreFreeSurfer, but if user wants to pass
         # a different aseg to FreeSurfer, this allows that to happen.
         if value:
             # Set to the path provided.
             self.aseg = value
+
     def set_asegdir(self, value):
         # aseg is generated by PreFreeSurfer, but if user wants to pass
         # a different aseg to FreeSurfer, this allows that to happen.
@@ -368,13 +366,14 @@ class Status(object):
 
     This is a write through data structure
     """
-    name = 'status.json'
+
+    name = "status.json"
     states = {
-        'unchecked': 999,
-        'not_started': 4,
-        'failed': 3,
-        'incomplete': 2,
-        'succeeded': 1,
+        "unchecked": 999,
+        "not_started": 4,
+        "failed": 3,
+        "incomplete": 2,
+        "succeeded": 1,
     }
 
     def __init__(self, folder_path):
@@ -386,52 +385,50 @@ class Status(object):
         self.file_path = os.path.join(folder_path, Status.name)
 
         defaults = {
-            'num_runs': 0,
-            'node_status': Status.states['not_started'],
-            'comment': '',
-            }
+            "num_runs": 0,
+            "node_status": Status.states["not_started"],
+            "comment": "",
+        }
 
         if not os.path.exists(self.file_path):
             self._write_dict(**defaults)
 
     def __getitem__(self, key):
-        with open(self.file_path, 'r') as fd:
+        with open(self.file_path, "r") as fd:
             return json.load(fd)[key]
 
     def __setitem__(self, key, value):
-        with open(self.file_path, 'r') as fd:
+        with open(self.file_path, "r") as fd:
             store = json.load(fd)
         store[key] = value
         self._write_dict(**store)
         return value
 
     def _write_dict(self, **contents):
-        with open(self.file_path, 'w') as fd:
+        with open(self.file_path, "w") as fd:
             json.dump(contents, fd, indent=4)
 
     def increment_run(self):
-        self['num_runs'] += 1
+        self["num_runs"] += 1
 
     def update_start_run(self):
         self.increment_run()
-        self['node_status'] = Status.states['incomplete']
+        self["node_status"] = Status.states["incomplete"]
 
     def update_success(self):
-        self['node_status'] = Status.states['succeeded']
-        self['comment'] = ''
+        self["node_status"] = Status.states["succeeded"]
+        self["comment"] = ""
 
-    def update_failure(self, comment=''):
-        self['node_status'] = Status.states['failed']
-        self['comment'] = comment
+    def update_failure(self, comment=""):
+        self["node_status"] = Status.states["failed"]
+        self["comment"] = comment
 
-    def update_unchecked(self, comment='no expected_outputs list for '
-                                       'completed node'):
-        self['node_status'] = Status.states['unchecked']
-        self['comment'] = comment
+    def update_unchecked(self, comment="no expected_outputs list for " "completed node"):
+        self["node_status"] = Status.states["unchecked"]
+        self["comment"] = comment
 
     def succeeded(self):
-        return self['node_status'] in (Status.states['succeeded'],
-                                       Status.states['unchecked'])
+        return self["node_status"] in (Status.states["succeeded"], Status.states["unchecked"])
 
 
 class Stage(object):
@@ -470,18 +467,18 @@ class Stage(object):
         self.kwargs = config.get_params()
         self.status = Status(self._get_log_dir())
         here = os.path.dirname(os.path.realpath(__file__))
-        with open(os.path.join(here, 'pipeline_expected_outputs.json')) as fd:
+        with open(os.path.join(here, "pipeline_expected_outputs.json")) as fd:
             jso = json.load(fd)
             self.expected_outputs_spec = jso[self.__class__.__name__]
 
     def __str__(self):
         cmdline = self.cmdline()
         if inspect.isgenerator(cmdline):
-            string = ''
+            string = ""
             for cmd in cmdline:
-                string += ' \\\n    '.join(cmd.split()) + '\n'
+                string += " \\\n    ".join(cmd.split()) + "\n"
         else:
-            string = ' \\\n    '.join(cmdline.split())
+            string = " \\\n    ".join(cmdline.split())
         return string
 
     @classmethod
@@ -512,7 +509,7 @@ class Stage(object):
         returns the subject's log directory for this stage
         :return: path to log directory
         """
-        log_dir = os.path.join(self.kwargs['logs'], self.__class__.__name__)
+        log_dir = os.path.join(self.kwargs["logs"], self.__class__.__name__)
         if not os.path.isdir(log_dir):
             os.makedirs(log_dir)
         return log_dir
@@ -528,11 +525,10 @@ class Stage(object):
         outputs = self.get_expected_outputs()
         checklist = [os.path.exists(p) for p in outputs]
         if not all(checklist):
-            print('missing expected outputs from %s' %
-                  self.__class__.__name__)
+            print("missing expected outputs from %s" % self.__class__.__name__)
             dne_list = [f for i, f in enumerate(outputs) if not checklist[i]]
             for f in dne_list:
-                print('file not found: %s' % f)
+                print("file not found: %s" % f)
             if self.ignore_expected_outputs:
                 return False
 
@@ -544,8 +540,7 @@ class Stage(object):
         expected outputs of concurrent executions.
         :return: formatted list of expected outputs
         """
-        expected_outputs = [p.format(**self.kwargs)
-                            for p in self.expected_outputs_spec]
+        expected_outputs = [p.format(**self.kwargs) for p in self.expected_outputs_spec]
         expected_outputs += self.get_conditional_expected_outputs()
         return expected_outputs
 
@@ -569,11 +564,10 @@ class Stage(object):
         outputs = self.get_expected_outputs()
         checklist = [os.path.isfile(p) for p in outputs]
         if any(checklist):
-            print('found outputs from an earlier run of %s' %
-                  self.__class__.__name__)
+            print("found outputs from an earlier run of %s" % self.__class__.__name__)
             rm_list = [f for i, f in enumerate(outputs) if checklist[i]]
             for f in rm_list:
-                print('removing %s' % f)
+                print("removing %s" % f)
                 os.remove(f)
 
     def setup(self):
@@ -598,18 +592,13 @@ class Stage(object):
             if result == 0:
                 self.status.update_success()
             else:
-                self.status.update_failure(
-                    'stage terminated with exit code %s' % result
-                )
+                self.status.update_failure("stage terminated with exit code %s" % result)
             if not self.check_expected_outputs():
-                self.status.update_failure(
-                    'stage terminated, some required files were not created.'
-                )
+                self.status.update_failure("stage terminated, some required files were not created.")
             # @TODO update status in case of missing expected outputs
             # finally, terminate pipeline in case of failure.
-            if self.status['node_status'] != Status.states['succeeded']:
-                raise Exception('error caught during stage: %s' %
-                                self.__class__.__name__)
+            if self.status["node_status"] != Status.states["succeeded"]:
+                raise Exception("error caught during stage: %s" % self.__class__.__name__)
 
     @property
     def args(self):
@@ -635,7 +624,7 @@ class Stage(object):
         :return: command line string.
         """
         script = self.script.format(**os.environ)
-        return ' '.join((script, self.args))
+        return " ".join((script, self.args))
 
     def run(self, ncpus=1):
         """
@@ -650,10 +639,8 @@ class Stage(object):
             cmdlist = []
             for cmd in self.cmdline():
                 log_dir = self._get_log_dir()
-                out_log = os.path.join(log_dir,
-                                       self.kwargs['fmriname'] + '.out')
-                err_log = os.path.join(log_dir,
-                                       self.kwargs['fmriname'] + '.err')
+                out_log = os.path.join(log_dir, self.kwargs["fmriname"] + ".out")
+                err_log = os.path.join(log_dir, self.kwargs["fmriname"] + ".err")
                 cmdlist.append((cmd, out_log, err_log))
             if not self.parallel_execution_active:
                 ncpus = 1
@@ -662,8 +649,8 @@ class Stage(object):
         else:
             cmd = self.cmdline()
             log_dir = self._get_log_dir()
-            out_log = os.path.join(log_dir, self.__class__.__name__ + '.out')
-            err_log = os.path.join(log_dir, self.__class__.__name__ + '.err')
+            out_log = os.path.join(log_dir, self.__class__.__name__ + ".out")
+            err_log = os.path.join(log_dir, self.__class__.__name__ + ".err")
             result = self.call(cmd, out_log, err_log, num_threads=ncpus)
         self.teardown(result)
 
@@ -679,94 +666,95 @@ class Stage(object):
 
 class PreliminaryMasking(Stage):
 
-    script = '{HCPPIPEDIR}/PreliminaryMasking/macaque_masking.py'
+    script = "{HCPPIPEDIR}/PreliminaryMasking/macaque_masking.py"
 
-    spec = ' --path={path}' \
-           ' --t1 {t1}' \
-           ' --t2 {t2}' \
-           ' --t1brainmask={t1_brain_mask}' \
-           ' --t2brainmask={t2_brain_mask}' \
-           ' --func={func}' \
-           ' --fmapmag={fmapmag}' \
-           ' --sshead={studytemplate}' \
-           ' --ssbrain={studytemplatebrain}' \
-           ' --verbose'
+    spec = (
+        " --path={path}"
+        " --t1 {t1}"
+        " --t2 {t2}"
+        " --t1brainmask={t1_brain_mask}"
+        " --t2brainmask={t2_brain_mask}"
+        " --func={func}"
+        " --fmapmag={fmapmag}"
+        " --sshead={studytemplate}"
+        " --ssbrain={studytemplatebrain}"
+        " --verbose"
+    )
 
     def __init__(self, config):
         super(__class__, self).__init__(config)
         # modify t1/t2 inputs for spec
-        self.kwargs['t1'] = ' '.join(self.kwargs.get('t1w'))
-        self.kwargs['t2'] = ' '.join(self.kwargs.get('t2w', []))
-        self.kwargs['func'] = '@'.join(self.config.get_bids('func'))
+        self.kwargs["t1"] = " ".join(self.kwargs.get("t1w"))
+        self.kwargs["t2"] = " ".join(self.kwargs.get("t2w", []))
+        self.kwargs["func"] = "@".join(self.config.get_bids("func"))
 
     @property
     def args(self):
         # None to NONE
-        kw = {k: (v if v is not None else "NONE")
-              for k, v in self.kwargs.items()}
+        kw = {k: (v if v is not None else "NONE") for k, v in self.kwargs.items()}
         return self.spec.format(**kw)
 
 
 class PreFreeSurfer(Stage):
 
-    script = '{HCPPIPEDIR}/PreFreeSurfer/PreFreeSurferPipeline.sh'
+    script = "{HCPPIPEDIR}/PreFreeSurfer/PreFreeSurferPipeline.sh"
 
-    spec = ' --path={path}' \
-           ' --subject={subject}' \
-           ' --t1={t1}' \
-           ' --t2={t2}' \
-           ' --t1template={t1template}' \
-           ' --t1templatebrain={t1templatebrain}' \
-           ' --t1template2mm={t1template2mm}' \
-           ' --t2template={t2template}' \
-           ' --t2templatebrain={t2templatebrain}' \
-           ' --t2template2mm={t2template2mm}' \
-           ' --t1brainmask={t1_brain_mask}' \
-           ' --t2brainmask={t2_brain_mask}' \
-           ' --templatemask={templatemask}' \
-           ' --template2mmmask={template2mmmask}' \
-           ' --brainsize={brainsize}' \
-           ' --fnirtconfig={fnirtconfig}' \
-           ' --fmapmag={fmapmag}' \
-           ' --fmapphase={fmapphase}' \
-           ' --fmapgeneralelectric={fmapgeneralelectric}' \
-           ' --echodiff={echodiff}' \
-           ' --SEPhaseNeg={sephaseneg}' \
-           ' --SEPhasePos={sephasepos}' \
-           ' --echospacing={echospacing}' \
-           ' --seunwarpdir={seunwarpdir}' \
-           ' --t1samplespacing={t1samplespacing}' \
-           ' --t2samplespacing={t2samplespacing}' \
-           ' --unwarpdir={unwarpdir}' \
-           ' --gdcoeffs={gdcoeffs}' \
-           ' --avgrdcmethod={dcmethod}' \
-           ' --topupconfig={topupconfig}' \
-           ' --useT2={useT2}' \
-           ' --printcom={printcom}' \
-           ' --fmapmagbrain={fmapmagbrain}' \
-           ' --revepi={userevepi}' \
-           ' --multitemplatedir={multitemplatedir}' \
-           ' --StudyTemplate={studytemplate}' \
-           ' --StudyTemplateBrain={studytemplatebrain}' \
-           ' --t1regmethod={t1_reg_method}' \
-           ' --asegdir={asegdir} '
+    spec = (
+        " --path={path}"
+        " --subject={subject}"
+        " --t1={t1}"
+        " --t2={t2}"
+        " --t1template={t1template}"
+        " --t1templatebrain={t1templatebrain}"
+        " --t1template2mm={t1template2mm}"
+        " --t2template={t2template}"
+        " --t2templatebrain={t2templatebrain}"
+        " --t2template2mm={t2template2mm}"
+        " --t1brainmask={t1_brain_mask}"
+        " --t2brainmask={t2_brain_mask}"
+        " --templatemask={templatemask}"
+        " --template2mmmask={template2mmmask}"
+        " --brainsize={brainsize}"
+        " --fnirtconfig={fnirtconfig}"
+        " --fmapmag={fmapmag}"
+        " --fmapphase={fmapphase}"
+        " --fmapgeneralelectric={fmapgeneralelectric}"
+        " --echodiff={echodiff}"
+        " --SEPhaseNeg={sephaseneg}"
+        " --SEPhasePos={sephasepos}"
+        " --echospacing={echospacing}"
+        " --seunwarpdir={seunwarpdir}"
+        " --t1samplespacing={t1samplespacing}"
+        " --t2samplespacing={t2samplespacing}"
+        " --unwarpdir={unwarpdir}"
+        " --gdcoeffs={gdcoeffs}"
+        " --avgrdcmethod={dcmethod}"
+        " --topupconfig={topupconfig}"
+        " --useT2={useT2}"
+        " --printcom={printcom}"
+        " --fmapmagbrain={fmapmagbrain}"
+        " --revepi={userevepi}"
+        " --multitemplatedir={multitemplatedir}"
+        " --StudyTemplate={studytemplate}"
+        " --StudyTemplateBrain={studytemplatebrain}"
+        " --t1regmethod={t1_reg_method}"
+        " --asegdir={asegdir} "
+    )
 
     def __init__(self, config):
         super(__class__, self).__init__(config)
-        self.kwargs['t1w_path'] = os.path.join(
-            self.kwargs['path'], 'T1w')
+        self.kwargs["t1w_path"] = os.path.join(self.kwargs["path"], "T1w")
         # modify t1/t2 inputs for spec
-        self.kwargs['t1'] = '@'.join(self.kwargs.get('t1w'))
-        self.kwargs['t2'] = '@'.join(self.kwargs.get('t2w', []))
-        if self.kwargs['dcmethod'] == 'TOPUP':
-            self.kwargs['sephasepos'], self.kwargs['sephaseneg'] = \
-                self._get_intended_sefmaps()
+        self.kwargs["t1"] = "@".join(self.kwargs.get("t1w"))
+        self.kwargs["t2"] = "@".join(self.kwargs.get("t2w", []))
+        if self.kwargs["dcmethod"] == "TOPUP":
+            self.kwargs["sephasepos"], self.kwargs["sephaseneg"] = self._get_intended_sefmaps()
         else:
-            self.kwargs['sephasepos'] = self.kwargs['sephaseneg'] = None
-        if self.kwargs['aseg'] is None:
-            self.kwargs['asegdir'] = self.kwargs['t1w_path']
+            self.kwargs["sephasepos"] = self.kwargs["sephaseneg"] = None
+        if self.kwargs["aseg"] is None:
+            self.kwargs["asegdir"] = self.kwargs["t1w_path"]
         else:
-            self.kwargs['asegdir'] = os.path.dirname(self.kwargs['aseg'])
+            self.kwargs["asegdir"] = os.path.dirname(self.kwargs["aseg"])
 
     def _get_intended_sefmaps(self):
         """
@@ -777,66 +765,63 @@ class PreFreeSurfer(Stage):
         """
 
         intended_idx = {}
-        for direction in ['positive', 'negative']:
-            for idx, sefm in enumerate(self.config.get_bids('fmap_metadata',
-                                                        direction)):
-                intended_targets = sefm.get('IntendedFor', [])
-                if 'T1w' in ' '.join(intended_targets):
+        for direction in ["positive", "negative"]:
+            for idx, sefm in enumerate(self.config.get_bids("fmap_metadata", direction)):
+                intended_targets = sefm.get("IntendedFor", [])
+                if "T1w" in " ".join(intended_targets):
                     intended_idx[direction] = idx
                     break
             else:
                 if idx != 1:
-                    print('WARNING: the intended %s spin echo for anatomical '
-                          'distortion correction is not explicitly defined in '
-                          'the sidecar json.' % direction)
+                    print(
+                        "WARNING: the intended %s spin echo for anatomical "
+                        "distortion correction is not explicitly defined in "
+                        "the sidecar json." % direction
+                    )
                 intended_idx[direction] = 0
 
-        return self.config.get_bids('fmap', 'positive', intended_idx[
-            'positive']), \
-            self.config.get_bids('fmap', 'negative', intended_idx['negative'])
+        return self.config.get_bids("fmap", "positive", intended_idx["positive"]), self.config.get_bids(
+            "fmap", "negative", intended_idx["negative"]
+        )
 
     @property
     def args(self):
         # None to NONE
-        kw = {k: (v if v is not None else "NONE")
-              for k, v in self.kwargs.items()}
+        kw = {k: (v if v is not None else "NONE") for k, v in self.kwargs.items()}
         return self.spec.format(**kw)
 
 
 class FreeSurfer(Stage):
 
-    script = '{HCPPIPEDIR}/FreeSurfer/FreeGreyPipeline.sh'
+    script = "{HCPPIPEDIR}/FreeSurfer/FreeGreyPipeline.sh"
 
-    spec = ' --subject={subject}' \
-           ' --subjectDIR={freesurferdir}' \
-           ' --t1={t1_restore}' \
-           ' --t1brain={t1_restore_brain}' \
-           ' --t2={t2_restore}' \
-           ' --normalizationMethod={norm_method}' \
-           ' --useT2={useT2}' \
-           ' --aseg={aseg}' \
-           ' --gca={gca}' \
-           ' --maxThickness={max_cortical_thickness}' \
-           ' --normgmstddevscale={norm_gm_std_dev_scale}' \
-           ' --normwmstddevscale={norm_wm_std_dev_scale}' \
-           ' --normcsfstddevscale={norm_csf_std_dev_scale}' \
-           ' --makewhitefromnormt1={make_white_from_norm_t1}' \
-           ' --singlepasspial={single_pass_pial}' \
-           ' --printcom={printcom}'
+    spec = (
+        " --subject={subject}"
+        " --subjectDIR={freesurferdir}"
+        " --t1={t1_restore}"
+        " --t1brain={t1_restore_brain}"
+        " --t2={t2_restore}"
+        " --normalizationMethod={norm_method}"
+        " --useT2={useT2}"
+        " --aseg={aseg}"
+        " --gca={gca}"
+        " --maxThickness={max_cortical_thickness}"
+        " --normgmstddevscale={norm_gm_std_dev_scale}"
+        " --normwmstddevscale={norm_wm_std_dev_scale}"
+        " --normcsfstddevscale={norm_csf_std_dev_scale}"
+        " --makewhitefromnormt1={make_white_from_norm_t1}"
+        " --singlepasspial={single_pass_pial}"
+        " --printcom={printcom}"
+    )
 
     def __init__(self, config):
         super(__class__, self).__init__(config)
-        self.kwargs['freesurferdir'] = os.path.join(
-            self.kwargs['path'], 'T1w')
-        self.kwargs['t1_restore'] = os.path.join(
-            self.kwargs['freesurferdir'], 'T1w_acpc_dc_restore.nii.gz')
-        self.kwargs['t1_restore_brain'] = os.path.join(
-            self.kwargs['freesurferdir'], 'T1w_acpc_dc_restore_brain.nii.gz')
-        self.kwargs['t2_restore'] = os.path.join(
-            self.kwargs['freesurferdir'], 'T2w_acpc_dc_restore.nii.gz')
-        if self.kwargs['aseg'] is None:
-            self.kwargs['aseg'] = os.path.join(
-                self.kwargs['freesurferdir'], 'aseg_acpc.nii.gz')
+        self.kwargs["freesurferdir"] = os.path.join(self.kwargs["path"], "T1w")
+        self.kwargs["t1_restore"] = os.path.join(self.kwargs["freesurferdir"], "T1w_acpc_dc_restore.nii.gz")
+        self.kwargs["t1_restore_brain"] = os.path.join(self.kwargs["freesurferdir"], "T1w_acpc_dc_restore_brain.nii.gz")
+        self.kwargs["t2_restore"] = os.path.join(self.kwargs["freesurferdir"], "T2w_acpc_dc_restore.nii.gz")
+        if self.kwargs["aseg"] is None:
+            self.kwargs["aseg"] = os.path.join(self.kwargs["freesurferdir"], "aseg_acpc.nii.gz")
 
     @property
     def args(self):
@@ -845,32 +830,34 @@ class FreeSurfer(Stage):
 
 class PostFreeSurfer(Stage):
 
-    script = '{HCPPIPEDIR}/PostFreeSurfer/PostFreeSurferPipeline.sh'
+    script = "{HCPPIPEDIR}/PostFreeSurfer/PostFreeSurferPipeline.sh"
 
-    spec = ' --path={path}' \
-           ' --subject={subject}' \
-           ' --surfatlasdir={surfatlasdir}' \
-           ' --grayordinatesdir={grayordinatesdir}' \
-           ' --grayordinatesres={grayordinatesres}' \
-           ' --hiresmesh={hiresmesh}' \
-           ' --lowresmesh={lowresmesh}' \
-           ' --subcortgraylabels={subcortgraylabels}' \
-           ' --freesurferlabels={freesurferlabels}' \
-           ' --refmyelinmaps={refmyelinmaps}' \
-           ' --regname={regname}' \
-           ' --reference2mm={t1template2mm}' \
-           ' --reference2mmmask={template2mmmask}' \
-           ' --config={fnirtconfig}' \
-           ' --useT2={useT2}' \
-           ' --t1template={t1template}' \
-           ' --t1templatebrain={t1templatebrain}' \
-           ' --t1template2mm={t1template2mm}' \
-           ' --t2template={t2template}' \
-           ' --t2templatebrain={t2templatebrain}' \
-           ' --t2template2mm={t2template2mm}' \
-           ' --templatemask={templatemask}' \
-           ' --template2mmmask={template2mmmask}' \
-           ' --printcom={printcom}'
+    spec = (
+        " --path={path}"
+        " --subject={subject}"
+        " --surfatlasdir={surfatlasdir}"
+        " --grayordinatesdir={grayordinatesdir}"
+        " --grayordinatesres={grayordinatesres}"
+        " --hiresmesh={hiresmesh}"
+        " --lowresmesh={lowresmesh}"
+        " --subcortgraylabels={subcortgraylabels}"
+        " --freesurferlabels={freesurferlabels}"
+        " --refmyelinmaps={refmyelinmaps}"
+        " --regname={regname}"
+        " --reference2mm={t1template2mm}"
+        " --reference2mmmask={template2mmmask}"
+        " --config={fnirtconfig}"
+        " --useT2={useT2}"
+        " --t1template={t1template}"
+        " --t1templatebrain={t1templatebrain}"
+        " --t1template2mm={t1template2mm}"
+        " --t2template={t2template}"
+        " --t2templatebrain={t2templatebrain}"
+        " --t2template2mm={t2template2mm}"
+        " --templatemask={templatemask}"
+        " --template2mmmask={template2mmmask}"
+        " --printcom={printcom}"
+    )
 
     def __init__(self, config):
         super(__class__, self).__init__(config)
@@ -882,40 +869,42 @@ class PostFreeSurfer(Stage):
 
 class FMRIVolume(Stage):
 
-    script = '{HCPPIPEDIR}/fMRIVolume/GenericfMRIVolumeProcessingPipeline.sh'
+    script = "{HCPPIPEDIR}/fMRIVolume/GenericfMRIVolumeProcessingPipeline.sh"
 
-    spec = ' --path={path}' \
-           ' --subject={subject}' \
-           ' --fmriname={fmriname}' \
-           ' --fmritcs={fmritcs}' \
-           ' --fmriscout={fmriscout}' \
-           ' --SEPhaseNeg={sephaseneg}' \
-           ' --SEPhasePos={sephasepos}' \
-           ' --fmapmag={fmapmag}' \
-           ' --fmapphase={fmapphase}' \
-           ' --fmapgeneralelectric={fmapgeneralelectric}' \
-           ' --echospacing={echospacing}' \
-           ' --echodiff={echodiff}' \
-           ' --unwarpdir={seunwarpdir}' \
-           ' --fmrires={fmrires}' \
-           ' --dcmethod={dcmethod}' \
-           ' --gdcoeffs={gdcoeffs}' \
-           ' --topupconfig={topupconfig}' \
-           ' --printcom={printcom}' \
-           ' --biascorrection={fmribfcmethod}' \
-           ' --mctype={mctype}' \
-           ' --useT2={useT2}' \
-           ' --userevepi={userevepi}' \
-           ' --ce={contrastagent}' \
-           ' --previousregistration={prevreg}'
+    spec = (
+        " --path={path}"
+        " --subject={subject}"
+        " --fmriname={fmriname}"
+        " --fmritcs={fmritcs}"
+        " --fmriscout={fmriscout}"
+        " --SEPhaseNeg={sephaseneg}"
+        " --SEPhasePos={sephasepos}"
+        " --fmapmag={fmapmag}"
+        " --fmapphase={fmapphase}"
+        " --fmapgeneralelectric={fmapgeneralelectric}"
+        " --echospacing={echospacing}"
+        " --echodiff={echodiff}"
+        " --unwarpdir={seunwarpdir}"
+        " --fmrires={fmrires}"
+        " --dcmethod={dcmethod}"
+        " --gdcoeffs={gdcoeffs}"
+        " --topupconfig={topupconfig}"
+        " --printcom={printcom}"
+        " --biascorrection={fmribfcmethod}"
+        " --mctype={mctype}"
+        " --useT2={useT2}"
+        " --userevepi={userevepi}"
+        " --ce={contrastagent}"
+        " --previousregistration={prevreg}"
+    )
 
     def __init__(self, config):
         super(__class__, self).__init__(config)
 
     def __str__(self):
-        string = ''
+        string = ""
         for cmd in self.cmdline():
-            string += ' \\\n    '.join(cmd.split()) + '\n'
+            string += " \\\n    ".join(cmd.split()) + "\n"
         return string
 
     def _get_intended_sefmaps(self):
@@ -925,137 +914,133 @@ class FMRIVolume(Stage):
         :return: pair of spin echo filenames, positive then negative
         """
         intended_idx = {}
-        for direction in ['positive', 'negative']:
-            for idx, sefm in enumerate(self.config.get_bids('fmap_metadata',
-                                                            direction)):
-                intended_targets = sefm.get('IntendedFor', [])
-                if get_relpath(self.kwargs['fmritcs']) in ' '.join(
-                        intended_targets):
+        for direction in ["positive", "negative"]:
+            for idx, sefm in enumerate(self.config.get_bids("fmap_metadata", direction)):
+                intended_targets = sefm.get("IntendedFor", [])
+                if get_relpath(self.kwargs["fmritcs"]) in " ".join(intended_targets):
                     intended_idx[direction] = idx
                     break
             else:
                 if idx != 1:
-                    print('WARNING: the intended %s spin echo for anatomical '
-                          'distortion correction is not explicitly defined in '
-                          'the sidecar json.' % direction)
+                    print(
+                        "WARNING: the intended %s spin echo for anatomical "
+                        "distortion correction is not explicitly defined in "
+                        "the sidecar json." % direction
+                    )
                 intended_idx[direction] = 0
 
-        return self.config.get_bids('fmap', 'positive', intended_idx[
-            'positive']), \
-               self.config.get_bids('fmap', 'negative',
-                                    intended_idx['negative'])
+        return self.config.get_bids("fmap", "positive", intended_idx["positive"]), self.config.get_bids(
+            "fmap", "negative", intended_idx["negative"]
+        )
 
     def set_registration_assist(self, moving, reference):
-        self.kwargs['regast_moving'] = moving
-        self.kwargs['regast_reference'] = reference
+        self.kwargs["regast_moving"] = moving
+        self.kwargs["regast_reference"] = reference
         self.deactivate_parallel_execution()
 
     @property
     def args(self):
-        fmri_data = sorted(self.config.get_bids('func'),
-            key=lambda x: (int('_ce-' in x), x))
-        for fmri, meta in zip(fmri_data,
-                              self.config.get_bids('func_metadata')):
+        fmri_data = sorted(self.config.get_bids("func"), key=lambda x: (int("_ce-" in x), x))
+        for fmri, meta in zip(fmri_data, self.config.get_bids("func_metadata")):
             # set ts parameters
-            self.kwargs['fmritcs'] = fmri
-            self.kwargs['fmriname'] = get_fmriname(fmri)
-            self.kwargs['fmriscout'] = None  # not implemented
-            self.kwargs['seunwarpdir'] = ijk_to_xyz(meta[
-                'PhaseEncodingDirection'])
-            if self.kwargs['dcmethod'] == 'TOPUP':
-                self.kwargs['sephasepos'], self.kwargs['sephaseneg'] = \
-                    self._get_intended_sefmaps()
+            self.kwargs["fmritcs"] = fmri
+            self.kwargs["fmriname"] = get_fmriname(fmri)
+            self.kwargs["fmriscout"] = None  # not implemented
+            self.kwargs["seunwarpdir"] = ijk_to_xyz(meta["PhaseEncodingDirection"])
+            if self.kwargs["dcmethod"] == "TOPUP":
+                self.kwargs["sephasepos"], self.kwargs["sephaseneg"] = self._get_intended_sefmaps()
             else:
-                self.kwargs['sephasepos'] = self.kwargs['sephaseneg'] = None
+                self.kwargs["sephasepos"] = self.kwargs["sephaseneg"] = None
             ce = get_contrast_agent(fmri)
             if ce:
-                self.kwargs['contrastagent'] = 'true'
+                self.kwargs["contrastagent"] = "true"
             else:
-                self.kwargs['contrastagent'] = 'false'
+                self.kwargs["contrastagent"] = "false"
 
-            if self.kwargs.get('regast_moving', None) == self.kwargs[
-                   'fmriname']:
-                self.kwargs['prevreg'] = self.kwargs['regast_reference']
+            if self.kwargs.get("regast_moving", None) == self.kwargs["fmriname"]:
+                self.kwargs["prevreg"] = self.kwargs["regast_reference"]
             else:
-                self.kwargs['prevreg'] = ''
+                self.kwargs["prevreg"] = ""
 
             # None to NONE
-            kw = {k: (v if v is not None else "NONE")
-                  for k, v in self.kwargs.items()}
+            kw = {k: (v if v is not None else "NONE") for k, v in self.kwargs.items()}
             yield self.spec.format(**kw)
 
     def cmdline(self):
         script = self.script.format(**os.environ)
         for argset in self.args:
-            yield ' '.join((script, argset))
+            yield " ".join((script, argset))
 
 
 class FMRISurface(Stage):
 
-    script = '{HCPPIPEDIR}/fMRISurface/GenericfMRISurfaceProcessingPipeline.sh'
+    script = "{HCPPIPEDIR}/fMRISurface/GenericfMRISurfaceProcessingPipeline.sh"
 
-    spec = ' --path={path}' \
-           ' --subject={subject}' \
-           ' --fmriname={fmriname}' \
-           ' --lowresmesh={lowresmesh}' \
-           ' --fmrires={fmrires}' \
-           ' --smoothingFWHM={smoothingFWHM}' \
-           ' --grayordinatesres={grayordinatesres}' \
-           ' --regname={regname}'
+    spec = (
+        " --path={path}"
+        " --subject={subject}"
+        " --fmriname={fmriname}"
+        " --lowresmesh={lowresmesh}"
+        " --fmrires={fmrires}"
+        " --smoothingFWHM={smoothingFWHM}"
+        " --grayordinatesres={grayordinatesres}"
+        " --regname={regname}"
+    )
 
     def __init__(self, config):
         super(__class__, self).__init__(config)
 
     def __str__(self):
-        string = ''
+        string = ""
         for cmd in self.cmdline():
-            string += ' \\\n    '.join(cmd.split()) + '\n'
+            string += " \\\n    ".join(cmd.split()) + "\n"
         return string
 
     @property
     def args(self):
-        for fmri in self.config.get_bids('func'):
-            self.kwargs['fmriname'] = get_fmriname(fmri)
+        for fmri in self.config.get_bids("func"):
+            self.kwargs["fmriname"] = get_fmriname(fmri)
             yield self.spec.format(**self.kwargs)
 
     def cmdline(self):
         script = self.script.format(**os.environ)
         for argset in self.args:
-            yield ' '.join((script, argset))
+            yield " ".join((script, argset))
 
 
 class DCANBOLDProcessing(Stage):
 
-    script = '{DCANBOLDPROCDIR}/dcan_bold_proc.py'
+    script = "{DCANBOLDPROCDIR}/dcan_bold_proc.py"
 
-    spec = ' --subject={subject}' \
-           ' --output-folder={path}' \
-           ' --task={fmriname}' \
-           ' --fd-threshold={fd_threshold}' \
-           ' --filter-order={filter_order}' \
-           ' --lower-bpf={lower_bpf}' \
-           ' --upper-bpf={upper_bpf}' \
-           ' --motion-filter-type={motion_filter_type}' \
-           ' --physio={physio}' \
-           ' --motion-filter-option={motion_filter_option}' \
-           ' --motion-filter-order={motion_filter_order}' \
-           ' --band-stop-min={band_stop_min}' \
-           ' --band-stop-max={band_stop_max}' \
-           ' --brain-radius={brain_radius}' \
-           ' --skip-seconds={skip_seconds}' \
-           ' --contiguous-frames={contiguous_frames}' \
-           ' --fmri-res={fmrires:g} '\
-           ' --roi-res={grayordinatesres:g}' \
-           ' --no-aparc'
+    spec = (
+        " --subject={subject}"
+        " --output-folder={path}"
+        " --task={fmriname}"
+        " --fd-threshold={fd_threshold}"
+        " --filter-order={filter_order}"
+        " --lower-bpf={lower_bpf}"
+        " --upper-bpf={upper_bpf}"
+        " --motion-filter-type={motion_filter_type}"
+        " --physio={physio}"
+        " --motion-filter-option={motion_filter_option}"
+        " --motion-filter-order={motion_filter_order}"
+        " --band-stop-min={band_stop_min}"
+        " --band-stop-max={band_stop_max}"
+        " --brain-radius={brain_radius}"
+        " --skip-seconds={skip_seconds}"
+        " --contiguous-frames={contiguous_frames}"
+        " --fmri-res={fmrires:g} "
+        " --roi-res={grayordinatesres:g}"
+        " --no-aparc"
+    )
 
     def __init__(self, config):
         super(__class__, self).__init__(config)
 
-    def set_bandstop_filter(self, lower_bound, upper_bound,
-                            filter_type='notch'):
-        self.kwargs['motion_filter_type'] = filter_type
-        self.kwargs['band_stop_min'] = lower_bound
-        self.kwargs['band_stop_max'] = upper_bound
+    def set_bandstop_filter(self, lower_bound, upper_bound, filter_type="notch"):
+        self.kwargs["motion_filter_type"] = filter_type
+        self.kwargs["band_stop_min"] = lower_bound
+        self.kwargs["band_stop_max"] = upper_bound
 
     def setup(self):
         """
@@ -1065,11 +1050,11 @@ class DCANBOLDProcessing(Stage):
         super(__class__, self).setup()
         script = self.script.format(**os.environ)
         args = self.spec.format(**self.kwargs)
-        cmd = ' '.join((script, args))
-        cmd += ' --setup'
+        cmd = " ".join((script, args))
+        cmd += " --setup"
         log_dir = self._get_log_dir()
-        out_log = os.path.join(log_dir, self.__class__.__name__ + '_setup.out')
-        err_log = os.path.join(log_dir, self.__class__.__name__ + '_setup.err')
+        out_log = os.path.join(log_dir, self.__class__.__name__ + "_setup.out")
+        err_log = os.path.join(log_dir, self.__class__.__name__ + "_setup.err")
         result = self.call(cmd, out_log, err_log)
 
     def teardown(self, result=0):
@@ -1078,48 +1063,49 @@ class DCANBOLDProcessing(Stage):
         :param result:
         :return:
         """
-        fmris = [get_fmriname(fmri) for fmri in self.config.get_bids('func')]
-        fmrisets = list(set([get_taskname(fmri)
-                              for fmri in self.config.get_bids('func')]))
+        fmris = [get_fmriname(fmri) for fmri in self.config.get_bids("func")]
+        fmrisets = list(set([get_taskname(fmri) for fmri in self.config.get_bids("func")]))
 
         script = self.script.format(**os.environ)
         args = self.spec.format(**self.kwargs)
-        cmd = ' '.join((script, args))
-        cmd += ' --teardown'
+        cmd = " ".join((script, args))
+        cmd += " --teardown"
 
         for fmriset in fmrisets:
-            fmrilist = sorted([ fmri for fmri in fmris if fmriset in fmri ])
-            cmd += ' --tasklist ' + ','.join(fmrilist)
+            fmrilist = sorted([fmri for fmri in fmris if fmriset in fmri])
+            cmd += " --tasklist " + ",".join(fmrilist)
 
         log_dir = self._get_log_dir()
-        out_log = os.path.join(log_dir, self.__class__.__name__ + '_teardown.out')
-        err_log = os.path.join(log_dir, self.__class__.__name__ + '_teardown.err')
+        out_log = os.path.join(log_dir, self.__class__.__name__ + "_teardown.out")
+        err_log = os.path.join(log_dir, self.__class__.__name__ + "_teardown.err")
         result = self.call(cmd, out_log, err_log)
 
         super(__class__, self).teardown(result)
 
     @property
     def args(self):
-        for fmri in self.config.get_bids('func'):
-            self.kwargs['fmriname'] = get_fmriname(fmri)
+        for fmri in self.config.get_bids("func"):
+            self.kwargs["fmriname"] = get_fmriname(fmri)
             yield self.spec.format(**self.kwargs)
 
     def cmdline(self):
         script = self.script.format(**os.environ)
         for argset in self.args:
-            yield ' '.join((script, argset))
+            yield " ".join((script, argset))
 
 
 class ExecutiveSummary(Stage):
 
-    script = '{EXECSUMDIR}/ExecutiveSummary.py'
+    script = "{EXECSUMDIR}/ExecutiveSummary.py"
 
-    spec = ' --bids-input={unproc}' \
-           ' --output-dir={path}' \
-           ' --participant-label={subject}' \
-           ' --session-id={session}' \
-           ' --atlas={t1templatebrain}' \
-           ' --dcan-summary={summary_dir} '
+    spec = (
+        " --bids-input={unproc}"
+        " --output-dir={path}"
+        " --participant-label={subject}"
+        " --session-id={session}"
+        " --atlas={t1templatebrain}"
+        " --dcan-summary={summary_dir} "
+    )
 
     def __init__(self, config):
         super(__class__, self).__init__(config)
@@ -1131,14 +1117,13 @@ class ExecutiveSummary(Stage):
 
 class CustomClean(Stage):
 
-    script = '{CUSTOMCLEANDIR}/cleaning_script.py'
+    script = "{CUSTOMCLEANDIR}/cleaning_script.py"
 
-    spec = ' --dir={path}' \
-           ' --json={input_json}'
+    spec = " --dir={path}" " --json={input_json}"
 
     def __init__(self, config, input_json):
         super(__class__, self).__init__(config)
-        self.kwargs['input_json'] = input_json
+        self.kwargs["input_json"] = input_json
 
     @property
     def args(self):
@@ -1149,12 +1134,11 @@ def _call(cmd, out_log, err_log, num_threads=1):
     env = os.environ.copy()
     if num_threads > 1:
         # set parallel environment variables
-        env['OMP_NUM_THREADS'] = str(num_threads)
-        env['ITK_GLOBAL_DEFAULT_NUMBER_OF_THREADS'] = str(num_threads)
-    with open(out_log, 'w') as out, open(err_log, 'w') as err:
+        env["OMP_NUM_THREADS"] = str(num_threads)
+        env["ITK_GLOBAL_DEFAULT_NUMBER_OF_THREADS"] = str(num_threads)
+    with open(out_log, "w") as out, open(err_log, "w") as err:
         result = subprocess.call(cmd.split(), stdout=out, stderr=err, env=env)
         if type(result) is list:
             if all(v == 0 for v in result):
                 result = 0
     return result
-

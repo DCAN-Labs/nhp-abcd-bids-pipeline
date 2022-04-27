@@ -60,10 +60,12 @@ def read_bids_dataset(bids_input, subject_list=None, session_list=None, collect_
         else:
             subsess += list(product([s], sessions))
 
-    assert len(subsess), 'bids data not found for participants. If labels ' \
-            'were provided, check the participant labels and/or session ' \
-            'ids for errors. Otherwise check that the bids folder provided ' \
-            'is correct.'
+    assert len(subsess), (
+        "bids data not found for participants. If labels "
+        "were provided, check the participant labels and/or session "
+        "ids for errors. Otherwise check that the bids folder provided "
+        "is correct."
+    )
 
     for subject, sessions in subsess:
         # get relevant image datatypes
@@ -72,10 +74,9 @@ def read_bids_dataset(bids_input, subject_list=None, session_list=None, collect_
         fmap = set_fieldmaps(layout, subject, sessions)
 
         bids_data = {
-            'subject': subject,
-            'session': sessions if not collect_on_subject else None,
-            'types': layout.get(subject=subject, session=sessions,
-                                target='suffix', return_type='id')
+            "subject": subject,
+            "session": sessions if not collect_on_subject else None,
+            "types": layout.get(subject=subject, session=sessions, target="suffix", return_type="id"),
         }
         bids_data.update(anat)
         bids_data.update(func)
@@ -85,71 +86,58 @@ def read_bids_dataset(bids_input, subject_list=None, session_list=None, collect_
 
 
 def set_anatomicals(layout, subject, sessions):
-    t1ws = layout.get(subject=subject, session=sessions, datatype='anat',
-                      suffix='T1w', extension='.nii.gz')
+    t1ws = layout.get(subject=subject, session=sessions, datatype="anat", suffix="T1w", extension=".nii.gz")
     if len(t1ws):
         t1w_metadata = layout.get_metadata(t1ws[0].path)
     else:
         print("No T1w data was found for this subject.")
         t1w_metadata = None
 
-
-    t2ws = layout.get(subject=subject, session=sessions, datatype='anat',
-                      suffix='T2w', extension='.nii.gz')
+    t2ws = layout.get(subject=subject, session=sessions, datatype="anat", suffix="T2w", extension=".nii.gz")
     if len(t2ws):
         t2w_metadata = layout.get_metadata(t2ws[0].path)
     else:
         t2w_metadata = None
     spec = {
-        't1w': [t.path for t in t1ws],
-        't1w_metadata': t1w_metadata,
-        't2w': [t.path for t in t2ws],
-        't2w_metadata': t2w_metadata
+        "t1w": [t.path for t in t1ws],
+        "t1w_metadata": t1w_metadata,
+        "t2w": [t.path for t in t2ws],
+        "t2w_metadata": t2w_metadata,
     }
     return spec
 
 
 def set_functionals(layout, subject, sessions):
-    func = layout.get(subject=subject, session=sessions, datatype='func',
-                      suffix='bold', extension='.nii.gz')
+    func = layout.get(subject=subject, session=sessions, datatype="func", suffix="bold", extension=".nii.gz")
     func_metadata = [layout.get_metadata(x.path) for x in func]
 
-    spec = {
-        'func': [f.path for f in func],
-        'func_metadata': func_metadata
-    }
+    spec = {"func": [f.path for f in func], "func_metadata": func_metadata}
     return spec
 
 
 def set_fieldmaps(layout, subject, sessions):
-    fmap = layout.get(subject=subject, session=sessions, datatype='fmap',
-                      extension='.nii.gz')
+    fmap = layout.get(subject=subject, session=sessions, datatype="fmap", extension=".nii.gz")
     fmap_metadata = [layout.get_metadata(x.path) for x in fmap]
 
     # handle case spin echo
-    types = [x.entities['suffix'] for x in fmap]
-    indices = [i for i, x in enumerate(types) if x == 'epi']
+    types = [x.entities["suffix"] for x in fmap]
+    indices = [i for i, x in enumerate(types) if x == "epi"]
     if len(indices):
         # @TODO read IntendedFor field to map field maps to functionals.
-        positive = [i for i, x in enumerate(fmap_metadata) if '-' not in x[
-            'PhaseEncodingDirection']]
-        negative = [i for i, x in enumerate(fmap_metadata) if '-' in x[
-            'PhaseEncodingDirection']]
-        fmap = {'positive': [fmap[i].path for i in positive],
-                'negative': [fmap[i].path for i in negative]}
+        positive = [i for i, x in enumerate(fmap_metadata) if "-" not in x["PhaseEncodingDirection"]]
+        negative = [i for i, x in enumerate(fmap_metadata) if "-" in x["PhaseEncodingDirection"]]
+        fmap = {"positive": [fmap[i].path for i in positive], "negative": [fmap[i].path for i in negative]}
         fmap_metadata = {
-            'positive': [fmap_metadata[i] for i in positive],
-            'negative': [fmap_metadata[i] for i in negative]}
+            "positive": [fmap_metadata[i] for i in positive],
+            "negative": [fmap_metadata[i] for i in negative],
+        }
         # @TODO check that no orthogonal field maps were collected.
 
     # handle case fieldmap # @TODO
-    elif 'magnitude' in fmap:
+    elif "magnitude" in fmap:
         pass
 
-    spec = {
-        'fmap': fmap,
-        'fmap_metadata': fmap_metadata
-    }
+    spec = {"fmap": fmap, "fmap_metadata": fmap_metadata}
     return spec
 
 
@@ -160,21 +148,21 @@ def get_readoutdir(metadata):
     :param metadata: grabbids metadata dict.
     :return: unwarp dir in cartesian (world) coordinates.
     """
-    iopd = metadata['ImageOrientationPatientDICOM']
-    ped = metadata['InPlanePhaseEncodingDirectionDICOM']
+    iopd = metadata["ImageOrientationPatientDICOM"]
+    ped = metadata["InPlanePhaseEncodingDirectionDICOM"]
     # readout direction is opposite the in plane phase encoding direction
-    if ped == 'ROW':
+    if ped == "ROW":
         readoutvec = iopd[3:]
-    elif ped == 'COLUMN' or ped == 'COL':
+    elif ped == "COLUMN" or ped == "COL":
         readoutvec = iopd[:3]
     else:
-        raise ValueError('phase encoding direction not recognized: ' + ped)
+        raise ValueError("phase encoding direction not recognized: " + ped)
 
     # convert 3-vector to symbolic unit vector
     i = max([0, 1, 2], key=lambda x: abs(readoutvec[x]))
-    readoutdir = ['x', 'y', 'z'][i]
+    readoutdir = ["x", "y", "z"][i]
     if readoutvec[i] < 0:
-        readoutdir += '-'
+        readoutdir += "-"
 
     return readoutdir
 
@@ -185,11 +173,11 @@ def get_realdwelltime(metadata):
     reconstruction parameters such as phaseOversampling and phaseResolution
     may not be accounted for.
     """
-    pBW = metadata['PixelBandwidth']
-    num_steps = metadata['AcquisitionMatrixPE']
-    parallelfactor = metadata.get('ParallelReductionFactorInPlane', 1)
+    pBW = metadata["PixelBandwidth"]
+    num_steps = metadata["AcquisitionMatrixPE"]
+    parallelfactor = metadata.get("ParallelReductionFactorInPlane", 1)
     realdwelltime = 1 / (pBW * num_steps * parallelfactor)
-    return '%0.9f' % realdwelltime
+    return "%0.9f" % realdwelltime
 
 
 def get_relpath(filename):
@@ -203,7 +191,7 @@ def get_relpath(filename):
     sessions_dir = os.path.dirname(types_dir)
     subject_dir = os.path.dirname(sessions_dir)
 
-    return os.path.relpath(filename,subject_dir)
+    return os.path.relpath(filename, subject_dir)
 
 
 def get_fmriname(filename):
@@ -217,13 +205,13 @@ def get_fmriname(filename):
     # original filename, so get this as 3 pieces.
     name = os.path.basename(filename)
 
-    expr = re.compile(r'.*(ses-(?!None)[^_]+_).*')
+    expr = re.compile(r".*(ses-(?!None)[^_]+_).*")
     session = expr.match(name)
 
-    expr = re.compile(r'.*(task-[^_]+_).*')
+    expr = re.compile(r".*(task-[^_]+_).*")
     taskname = expr.match(name)
 
-    expr = re.compile(r'.*(run-[0-9]+).*')
+    expr = re.compile(r".*(run-[0-9]+).*")
     run = expr.match(name)
 
     if session:
@@ -235,7 +223,7 @@ def get_fmriname(filename):
         fmriname += run.group(1)
     else:
         # handle optional bids "run" field:
-        fmriname += 'run-01'
+        fmriname += "run-01"
 
     return fmriname
 
@@ -246,7 +234,7 @@ def get_taskname(filename):
     :return: name of task, e.g. "task-nback"
     """
     name = os.path.basename(filename)
-    expr = re.compile(r'.*(task-[^_]+).*')
+    expr = re.compile(r".*(task-[^_]+).*")
     task = expr.match(name)
     taskname = task.group(1)
     return taskname
@@ -258,7 +246,7 @@ def get_contrast_agent(filename):
     :return: name of task, e.g. "task-nback"
     """
     name = os.path.basename(filename)
-    expr = re.compile(r'.*_(ce-[^_]+).*')
+    expr = re.compile(r".*_(ce-[^_]+).*")
     task = expr.match(name)
     if task:
         cename = task.group(1)
@@ -273,22 +261,21 @@ def ijk_to_xyz(vec, patient_orientation=None):
     :param vec: one of i, j, k +/-
     :return: x, y, or z +/-
     """
-    vmap = {'i': 'x', 'j': 'y', 'k': 'z',
-            'i-': 'x-', 'j-': 'y-', 'k-': 'z-',
-            '-i': 'x-', '-j': 'y-', '-k': 'z-'}
+    vmap = {"i": "x", "j": "y", "k": "z", "i-": "x-", "j-": "y-", "k-": "z-", "-i": "x-", "-j": "y-", "-k": "z-"}
     return vmap[vec]
 
 
 def validate_license(freesurfer_license):
-    fshome = os.environ['FREESURFER_HOME']
-    license_txt = os.path.join(fshome, 'license.txt')
+    fshome = os.environ["FREESURFER_HOME"]
+    license_txt = os.path.join(fshome, "license.txt")
     if freesurfer_license is None:
-        assert os.path.exists(license_txt), \
-            'freesurfer license.txt not located. You can provide a license ' \
-            'file using the --freesurfer-license <LICENSE> argument.'
+        assert os.path.exists(license_txt), (
+            "freesurfer license.txt not located. You can provide a license "
+            "file using the --freesurfer-license <LICENSE> argument."
+        )
     elif os.path.normpath(license_txt) == os.path.normpath(freesurfer_license):
         pass
     else:
         import shutil
-        shutil.copy(freesurfer_license, license_txt)
 
+        shutil.copy(freesurfer_license, license_txt)
