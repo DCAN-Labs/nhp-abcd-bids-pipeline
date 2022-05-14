@@ -1,13 +1,21 @@
-FROM ubuntu:20.04
+FROM ubuntu:18.04
 
 ENV DEBIAN_FRONTEND=noninteractive
 
 # install dependencies
-RUN apt-get update && apt-get install -y build-essential cmake wget m4 \
-    gfortran python2 python3 python3-dev python3-distutils python3-pip \
-    libopenblas-dev liblapack-dev libhdf5-dev libfftw3-dev git graphviz \
-    git-lfs curl dc libgl1-mesa-dev unzip libgomp1 libxmu6 libxt6 tcsh && \
-    wget https://bootstrap.pypa.io/pip/2.7/get-pip.py && python2 get-pip.py
+RUN apt-get update && apt-get install -y build-essential gpg wget m4 libglu1-mesa libncursesw5-dev libgdbm-dev \
+    gfortran python python-pip python3 python3-dev python3-distutils python3-pip libz-dev libreadline-dev libbz2-dev \
+    libopenblas-dev liblapack-dev libhdf5-dev libfftw3-dev git graphviz patchelf libssl-dev libsqlite3-dev uuid-dev \
+    git-lfs curl bc dc libgl1-mesa-dev unzip libgomp1 libxmu6 libxt6 tcsh libffi-dev lzma-dev liblzma-dev tk-dev \
+    libdb-dev && \
+    # install cmake
+    wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null | gpg --dearmor - | tee /usr/share/keyrings/kitware-archive-keyring.gpg >/dev/null && \
+    echo 'deb [signed-by=/usr/share/keyrings/kitware-archive-keyring.gpg] https://apt.kitware.com/ubuntu/ bionic main' | tee /etc/apt/sources.list.d/kitware.list >/dev/null && \
+    apt-get update && rm /usr/share/keyrings/kitware-archive-keyring.gpg && apt-get install -y kitware-archive-keyring cmake && \
+    # install python3.10
+    cd /opt && curl -O https://www.python.org/ftp/python/3.10.4/Python-3.10.4.tgz && tar xvf Python-3.10.4.tgz && \
+    rm Python-3.10.4.tgz && cd Python-3.10.4 && ./configure --enable-optimizations && make altinstall && \
+    cd .. && rm -rf Python-3.10.4 
 
 # set directory to /opt
 WORKDIR /opt
@@ -18,13 +26,12 @@ RUN mkdir -p /opt/ANTs && cd /opt/ANTs && \
     chmod +x /opt/ANTs/installANTs.sh && /opt/ANTs/installANTs.sh && rm installANTs.sh && \
     rm -rf /opt/ANTs/ANTs && rm -rf /opt/ANTs/build && rm -rf /opt/ANTs/install/lib && \
     mv /opt/ANTs/install/bin /opt/ANTs/bin && rm -rf /opt/ANTs/install
-ENV PATH=${PATH}:/opt/ANTs/bin
+ENV ANTSPATH=/opt/ANTs/bin PATH=${PATH}:/opt/ANTs/bin
 
 # install fsl
 RUN curl -O https://fsl.fmrib.ox.ac.uk/fsldownloads/fslinstaller.py && \
     python2 fslinstaller.py -d /opt/fsl && rm fslinstaller.py
-ENV FSLDIR=/opt/fsl FSLOUTPUTTYPE=NIFTI_GZ FSLMULTIFILEQUIT=TRUE FSLTCLSH=/usr/bin/tclsh FSLWISH=/usr/bin/wish \
-    FSLLOCKDIR= FSLMACHINELIST= FSLREMOTECALL= FSLGECUDAQ=cuda.q PATH=${PATH}:/opt/fsl/bin
+ENV FSLDIR=/opt/fsl PATH=${PATH}:/opt/fsl/bin
 
 # install afni
 RUN mkdir -p /opt/afni && cd /opt/afni && \
@@ -60,23 +67,19 @@ RUN curl -sSL --retry 5 https://surfer.nmr.mgh.harvard.edu/pub/dist/freesurfer/5
     --exclude='freesurfer/subjects/fsaverage5' \
     --exclude='freesurfer/subjects/fsaverage6' \
     --exclude='freesurfer/subjects/fsaverage_sym' \
-    --exclude='freesurfer/trctrain'
+    --exclude='freesurfer/trctrain' && \
+    # patch mris_make_surfaces to use a non-specific version of netcdf
+    patchelf --replace-needed libnetcdf.so.6 libnetcdf.so /opt/freesurfer/bin/mris_make_surfaces
 # FreeSurfer uses matlab and tries to write the startup.m to the HOME dir.
 # Therefore, HOME needs to be a writable dir.
-ENV FREESURFER_HOME=/opt/freesurfer HOME=/opt SUBJECTS_DIR=/opt/freesurfer/subjects FSL_DIR=/opt/fsl \
-    FUNCTIONALS_DIR=/opt/freesurfer/sessions FSFAST_HOME=/opt/freesurfer/fsfast FREESURFER=/usr/local/freesurfer \
-    FS_OVERRIDE=0 FMRI_ANALYSIS_DIR=/opt/freesurfer/fsfast MINC_BIN_DIR=/opt/freesurfer/mni/bin \
-    MNI_DATAPATH=/opt/freesurfer/mni/data MINC_LIB_DIR=/opt/freesurfer/mni/lib PERL5LIB=/opt/freesurfer/mni/lib/perl5/5.8.5 \
-    MNI_PERL5LIB=/opt/freesurfer/mni/lib/perl5/5.8.5 LOCAL_DIR=/opt/freesurfer/local FIX_VERTEX_AREA="" \
-    MNI_DIR=/opt/freesurfer/mni FSF_OUTPUT_FORMAT=nii.gz FSL_BIN=/opt/fsl/bin \
-    PATH=/opt/freesurfer/bin:/opt/freesurfer/fsfast/bin:opt/freesurfer/tktools:/opt/freesurfer/mni/bin:${PATH}
+ENV FREESURFER_HOME=/opt/freesurfer HOME=/opt SUBJECTS_DIR=/opt/freesurfer/subjects
 
-#---------------------
+# ---------------------
 # Install MATLAB Compiler Runtime
 #---------------------
 RUN mkdir /opt/mcr /opt/mcr_download && cd /opt/mcr_download && \
-    wget https://ssd.mathworks.com/supportfiles/downloads/R2019a/Release/9/deployment_files/installer/complete/glnxa64/MATLAB_Runtime_R2019a_Update_9_glnxa64.zip \
-    && unzip MATLAB_Runtime_R2019a_Update_9_glnxa64.zip \
+    wget https://ssd.mathworks.com/supportfiles/downloads/R2017a/deployment_files/R2017a/installers/glnxa64/MCR_R2017a_glnxa64_installer.zip \
+    && unzip MCR_R2017a_glnxa64_installer.zip \
     && ./install -agreeToLicense yes -mode silent -destinationFolder /opt/mcr \
     && rm -rf /opt/mcr_download
 
@@ -104,7 +107,7 @@ RUN curl -sSL --retry 5 https://github.com/Unidata/netcdf-c/archive/v4.6.1.tar.g
     cd /opt/netcdf-c-4.6.1/ && \
     LDFLAGS=-L/usr/local/lib && CPPFLAGS=-I/usr/local/include && ./configure --disable-netcdf-4 --disable-dap --enable-shared --prefix=/usr/local && \
     make && make install && cd /usr/local/lib && \
-    ln -s libnetcdf.so.13.1.1 libnetcdf.so.6 && rm -rf /opt/netcdf-c-4.6.1/
+    rm -rf /opt/netcdf-c-4.6.1/ && ldconfig
 
 #------------------------------------------
 # Set Connectome Workbench Binary Directory
@@ -122,8 +125,6 @@ ENV WORKBENCHDIR=/opt/workbench \
 # DCAN tools
 RUN mkdir /opt/dcan-tools && cd /opt/dcan-tools && \
     pip2 install pyyaml numpy pillow && \
-    # dcan bold processing
-    git clone -b v4.0.10 --single-branch --depth 1 https://github.com/DCAN-Labs/dcan_bold_processing.git dcan_bold_proc && \
     # dcan executive summary
     git clone -b v2.2.10 --single-branch --depth 1 https://github.com/DCAN-Labs/ExecutiveSummary.git executivesummary && \
     gunzip /opt/dcan-tools/executivesummary/templates/parasagittal_Tx_169_template.scene.gz && \
@@ -132,13 +133,15 @@ RUN mkdir /opt/dcan-tools && cd /opt/dcan-tools && \
     # dcan file mapper
     git clone -b v1.3.0 --single-branch --depth 1 https://github.com/DCAN-Labs/file-mapper.git filemapper && \
     printf "{\n  \"VERSION\": \"development\"\n}\n" > /opt/dcan-tools/version.json
+# dcan bold processing
+COPY ["dcan_bold_processing", "/opt/dcan-tools/dcan_bold_proc"]
 
 #----------------------------------------------------------
 # Install common dependencies and insert pipeline code
 #----------------------------------------------------------
 COPY ["app", "/app"]
-RUN pip install pyyaml numpy pillow pandas && python3 -m pip install -r "/app/requirements.txt" && \
-    git clone -b 'v0.1.1' --single-branch --depth 1 https://github.com/DCAN-Labs/dcan-macaque-pipeline.git /opt/pipeline
+RUN python3 -m pip install pyyaml numpy pillow pandas && python3 -m pip install -r "/app/requirements.txt"
+COPY ["dcan-macaque-pipeline", "/opt/pipeline"]
 
 # unless otherwise specified...
 ENV OMP_NUM_THREADS=1 SCRATCHDIR=/tmp/scratch ITK_GLOBAL_DEFAULT_NUMBER_OF_THREADS=1 TMPDIR=/tmp
@@ -152,3 +155,5 @@ COPY ["./SetupEnv.sh", "/SetupEnv.sh"]
 ENTRYPOINT ["/entrypoint.sh"]
 WORKDIR /
 CMD ["--help"]
+
+RUN python3 -m pip install jupyter

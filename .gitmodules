@@ -1,0 +1,6 @@
+[submodule "dcan-macaque-pipeline"]
+	path = dcan-macaque-pipeline
+	url = git@github.com:vanandrew/dcan-macaque-pipeline.git
+[submodule "dcan_bold_processing"]
+	path = dcan_bold_processing
+	url = git@github.com:vanandrew/dcan_bold_processing.git
