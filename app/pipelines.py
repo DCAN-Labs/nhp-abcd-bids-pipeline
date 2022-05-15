@@ -1,6 +1,7 @@
 import inspect
 import json
 import multiprocessing as mp
+from operator import sub
 import subprocess
 
 import os
@@ -1137,7 +1138,7 @@ def _call(cmd, out_log, err_log, num_threads=1):
         env["OMP_NUM_THREADS"] = str(num_threads)
         env["ITK_GLOBAL_DEFAULT_NUMBER_OF_THREADS"] = str(num_threads)
     with open(out_log, "w") as out, open(err_log, "w") as err:
-        result = subprocess.call(cmd.split(), stdout=out, stderr=err, env=env)
+        result = subprocess.check_call(cmd.split(), stdout=None, stderr=None, env=env)
         if type(result) is list:
             if all(v == 0 for v in result):
                 result = 0
