@@ -140,7 +140,8 @@ COPY --from=perl /opt/perl /opt/perl
 COPY --from=dcan-tools /opt/dcan-tools /opt/dcan-tools
 
 # install omni
-RUN git clone https://gitlab.com/vanandrew/omni.git && cd omni && git checkout new_install && \
+RUN git clone https://gitlab.com/vanandrew/omni.git && cd omni && \
+    git checkout 83adc5e82500ede25573f858f6a5eb974aa408cf && \
     python3.10 -m pip install -e ./
 
 # copy DCAN pipeline
