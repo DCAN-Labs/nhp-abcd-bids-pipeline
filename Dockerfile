@@ -75,9 +75,7 @@ RUN curl -sSL --retry 5 https://surfer.nmr.mgh.harvard.edu/pub/dist/freesurfer/5
     --exclude='freesurfer/subjects/fsaverage5' \
     --exclude='freesurfer/subjects/fsaverage6' \
     --exclude='freesurfer/subjects/fsaverage_sym' \
-    --exclude='freesurfer/trctrain' && \
-    # patch mris_make_surfaces to use a non-specific version of netcdf
-    patchelf --replace-needed libnetcdf.so.6 libnetcdf.so /opt/freesurfer/bin/mris_make_surfaces
+    --exclude='freesurfer/trctrain'
 
 # Install MATLAB Compiler Runtime
 FROM base as mcr
@@ -97,9 +95,7 @@ RUN mkdir /opt/msm && \
 # Make perl version 5.20.3
 FROM base as perl
 RUN curl -sSL --retry 5 http://www.cpan.org/src/5.0/perl-5.20.3.tar.gz | tar zx -C /opt && \
-    mkdir -p /opt/perl && cd /opt/perl-5.20.3 && ./Configure -des -Dprefix=/opt/perl && make && make install && \
-    rm -f /usr/bin/perl && ln -s /opt/perl/bin/perl /usr/bin/perl && \
-    cd / && rm -rf /opt/perl-5.20.3/
+    mkdir -p /opt/perl && cd /opt/perl-5.20.3 && ./Configure -des -Dprefix=/opt/perl && make && make install
 
 # DCAN tools
 FROM base as dcan-tools
@@ -138,6 +134,13 @@ COPY --from=mcr /opt/mcr /opt/mcr
 COPY --from=msm /opt/msm /opt/msm
 COPY --from=perl /opt/perl /opt/perl
 COPY --from=dcan-tools /opt/dcan-tools /opt/dcan-tools
+
+# adjust libnetcdf copy so that it is a symlink and patch mris_make_surfaces to use a non-specific version of netcdf
+RUN rm -rf /usr/local/lib/libnetcdf.so.13 && ln -s /usr/local/lib/libnetcdf.so /usr/local/lib/libnetcdf.so.13 && \
+    patchelf --replace-needed libnetcdf.so.6 libnetcdf.so.13 /opt/freesurfer/bin/mris_make_surfaces && ldconfig
+
+# set perl to to /opt version
+RUN rm /usr/bin/perl && ln -s /opt/perl/bin/perl /usr/bin/perl
 
 # install omni
 RUN git clone https://gitlab.com/vanandrew/omni.git && cd omni && \
