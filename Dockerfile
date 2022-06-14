@@ -144,7 +144,6 @@ RUN rm /usr/bin/perl && ln -s /opt/perl/bin/perl /usr/bin/perl
 
 # install omni
 RUN git clone https://gitlab.com/vanandrew/omni.git && cd omni && \
-    git checkout 83adc5e82500ede25573f858f6a5eb974aa408cf && \
     python3.10 -m pip install -e ./
 
 # copy DCAN pipeline
