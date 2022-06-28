@@ -35,12 +35,13 @@ from pipelines import (
     PreFreeSurfer,
     FreeSurfer,
     PostFreeSurfer,
-    FMRIVolume,
+    # FMRIVolume,
     FMRISurface,
     DCANBOLDProcessing,
     ExecutiveSummary,
     CustomClean,
 )
+from fmri_volume import FMRIVolume
 
 # debug
 # import debug

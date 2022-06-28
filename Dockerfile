@@ -5,7 +5,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 WORKDIR /opt
 # install dependencies
 RUN apt-get update && apt-get install -y build-essential gpg wget m4 libglu1-mesa libncursesw5-dev libgdbm-dev \
-    gfortran python python-pip python3 python3-dev python3-distutils python3-pip libz-dev libreadline-dev libbz2-dev \
+    gfortran python python-pip libz-dev libreadline-dev libbz2-dev \
     libopenblas-dev liblapack-dev libhdf5-dev libfftw3-dev git graphviz patchelf libssl-dev libsqlite3-dev uuid-dev \
     git-lfs curl bc dc libgl1-mesa-dev unzip libgomp1 libxmu6 libxt6 tcsh libffi-dev lzma-dev liblzma-dev tk-dev \
     libdb-dev && \
@@ -16,10 +16,10 @@ RUN apt-get update && apt-get install -y build-essential gpg wget m4 libglu1-mes
     | tee /etc/apt/sources.list.d/kitware.list >/dev/null && \
     apt-get update && rm /usr/share/keyrings/kitware-archive-keyring.gpg && \
     apt-get install -y kitware-archive-keyring cmake && \
-    # install python3.10
-    curl -O https://www.python.org/ftp/python/3.10.4/Python-3.10.4.tgz && tar xvf Python-3.10.4.tgz && \
-    rm Python-3.10.4.tgz && cd Python-3.10.4 && ./configure --enable-optimizations && make altinstall && \
-    cd .. && rm -rf Python-3.10.4
+    # install python3.9
+    curl -O https://www.python.org/ftp/python/3.9.13/Python-3.9.13.tgz && tar xvf Python-3.9.13.tgz && \
+    rm Python-3.9.13.tgz && cd Python-3.9.13 && ./configure --enable-optimizations && make altinstall && \
+    cd .. && rm -rf Python-3.9.13
 
 # install ants
 FROM base as ants
@@ -116,11 +116,6 @@ COPY ["dcan_bold_processing", "/opt/dcan-tools/dcan_bold_proc"]
 # finalize build
 FROM base as final
 
-# install python stuff
-COPY ["app", "/app"]
-RUN pip2 install pyyaml numpy pillow && python3 -m pip install pyyaml numpy pillow pandas jupyter && \
-    python3 -m pip install -r "/app/requirements.txt"
-
 # copy dependencies from other images
 RUN mkdir -p /opt/ANTs
 COPY --from=ants /opt/ANTs/bin /opt/ANTs/bin
@@ -135,20 +130,22 @@ COPY --from=msm /opt/msm /opt/msm
 COPY --from=perl /opt/perl /opt/perl
 COPY --from=dcan-tools /opt/dcan-tools /opt/dcan-tools
 
+# alias python3.9 to python3
+RUN ln -s /usr/local/bin/python3.9 /usr/bin/python3
+
+# install python stuff
+# this should be replaced with pyproject.toml
+COPY ["requirements.txt", "/requirements.txt"]
+RUN pip2 install pyyaml numpy pillow && \
+    python3 -m pip install -r "/requirements.txt" && \
+    python3 -m pip install pyyaml numpy pillow pandas jupyter pybids duecredit
+
 # adjust libnetcdf copy so that it is a symlink and patch mris_make_surfaces to use a non-specific version of netcdf
 RUN rm -rf /usr/local/lib/libnetcdf.so.13 && ln -s /usr/local/lib/libnetcdf.so /usr/local/lib/libnetcdf.so.13 && \
     patchelf --replace-needed libnetcdf.so.6 libnetcdf.so.13 /opt/freesurfer/bin/mris_make_surfaces && ldconfig
 
 # set perl to to /opt version
 RUN rm /usr/bin/perl && ln -s /opt/perl/bin/perl /usr/bin/perl
-
-# install omni
-RUN git clone https://gitlab.com/vanandrew/omni.git && cd omni && \
-    git checkout f3330367c58d88ae584d37cfe328b8e9610d1426 && \
-    python3.10 -m pip install -e ./
-
-# copy DCAN pipeline
-COPY ["dcan-macaque-pipeline", "/opt/pipeline"]
 
 # Set Connectome Workbench Binary Directory
 RUN ln -s /opt/workbench/bin_linux64/wb_command /opt/workbench/wb_command && \
@@ -171,7 +168,18 @@ ENV C3DPATH=/opt/c3d/bin PATH=/opt/c3d/bin:$PATH
 # Therefore, HOME needs to be a writable dir.
 ENV FREESURFER_HOME=/opt/freesurfer HOME=/opt SUBJECTS_DIR=/opt/freesurfer/subjects
 ENV MSMBINDIR=/opt/msm/Ubuntu
-ENV OMP_NUM_THREADS=1 SCRATCHDIR=/tmp/scratch ITK_GLOBAL_DEFAULT_NUMBER_OF_THREADS=1 TMPDIR=/tmp
+ENV OMP_NUM_THREADS=8 SCRATCHDIR=/tmp/scratch ITK_GLOBAL_DEFAULT_NUMBER_OF_THREADS=8 TMPDIR=/tmp
+
+# install omni
+RUN git clone https://gitlab.com/vanandrew/omni.git && cd omni && \
+    git checkout 115ae8786ae000518432bbdf5aab2dbd4abc6ef0 && \
+    python3.9 -m pip install -e ./[extra]
+
+# copy DCAN pipeline
+COPY ["dcan-macaque-pipeline", "/opt/pipeline"]
+
+# copy over app
+COPY ["app", "/app"]
 
 # make some directories
 RUN mkdir /bids_input /output /atlases

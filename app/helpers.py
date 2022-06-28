@@ -35,7 +35,7 @@ def read_bids_dataset(bids_input, subject_list=None, session_list=None, collect_
     }
     """
 
-    layout = BIDSLayout(bids_input, index_metadata=True)
+    layout = BIDSLayout(bids_input)
     subjects = layout.get_subjects()
 
     # filter subject list
