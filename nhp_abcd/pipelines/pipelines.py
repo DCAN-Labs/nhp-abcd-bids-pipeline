@@ -1,12 +1,10 @@
+import os
 import inspect
 import json
 import multiprocessing as mp
-from operator import sub
 import subprocess
 
-import os
-
-from helpers import get_contrast_agent, get_fmriname, get_readoutdir, get_relpath, get_taskname, ijk_to_xyz
+from nhp_abcd.helpers import get_fmriname, get_readoutdir, get_taskname, ijk_to_xyz
 
 
 class ParameterSettings(object):
@@ -468,7 +466,7 @@ class Stage(object):
         self.kwargs = config.get_params()
         self.status = Status(self._get_log_dir())
         here = os.path.dirname(os.path.realpath(__file__))
-        with open(os.path.join(here, "pipeline_expected_outputs.json")) as fd:
+        with open(os.path.join(here, "outputs.json")) as fd:
             jso = json.load(fd)
             self.expected_outputs_spec = jso[self.__class__.__name__]
 
@@ -868,109 +866,109 @@ class PostFreeSurfer(Stage):
         return self.spec.format(**self.kwargs)
 
 
-class FMRIVolume(Stage):
+# class FMRIVolume(Stage):
 
-    script = "{HCPPIPEDIR}/fMRIVolume/GenericfMRIVolumeProcessingPipeline.sh"
+#     script = "{HCPPIPEDIR}/fMRIVolume/GenericfMRIVolumeProcessingPipeline.sh"
 
-    spec = (
-        " --path={path}"
-        " --subject={subject}"
-        " --fmriname={fmriname}"
-        " --fmritcs={fmritcs}"
-        " --fmriscout={fmriscout}"
-        " --SEPhaseNeg={sephaseneg}"
-        " --SEPhasePos={sephasepos}"
-        " --fmapmag={fmapmag}"
-        " --fmapphase={fmapphase}"
-        " --fmapgeneralelectric={fmapgeneralelectric}"
-        " --echospacing={echospacing}"
-        " --echodiff={echodiff}"
-        " --unwarpdir={seunwarpdir}"
-        " --fmrires={fmrires}"
-        " --dcmethod={dcmethod}"
-        " --gdcoeffs={gdcoeffs}"
-        " --topupconfig={topupconfig}"
-        " --printcom={printcom}"
-        " --biascorrection={fmribfcmethod}"
-        " --mctype={mctype}"
-        " --useT2={useT2}"
-        " --userevepi={userevepi}"
-        " --ce={contrastagent}"
-        " --previousregistration={prevreg}"
-    )
+#     spec = (
+#         " --path={path}"
+#         " --subject={subject}"
+#         " --fmriname={fmriname}"
+#         " --fmritcs={fmritcs}"
+#         " --fmriscout={fmriscout}"
+#         " --SEPhaseNeg={sephaseneg}"
+#         " --SEPhasePos={sephasepos}"
+#         " --fmapmag={fmapmag}"
+#         " --fmapphase={fmapphase}"
+#         " --fmapgeneralelectric={fmapgeneralelectric}"
+#         " --echospacing={echospacing}"
+#         " --echodiff={echodiff}"
+#         " --unwarpdir={seunwarpdir}"
+#         " --fmrires={fmrires}"
+#         " --dcmethod={dcmethod}"
+#         " --gdcoeffs={gdcoeffs}"
+#         " --topupconfig={topupconfig}"
+#         " --printcom={printcom}"
+#         " --biascorrection={fmribfcmethod}"
+#         " --mctype={mctype}"
+#         " --useT2={useT2}"
+#         " --userevepi={userevepi}"
+#         " --ce={contrastagent}"
+#         " --previousregistration={prevreg}"
+#     )
 
-    def __init__(self, config):
-        super(__class__, self).__init__(config)
+#     def __init__(self, config):
+#         super(__class__, self).__init__(config)
 
-    def __str__(self):
-        string = ""
-        for cmd in self.cmdline():
-            string += " \\\n    ".join(cmd.split()) + "\n"
-        return string
+#     def __str__(self):
+#         string = ""
+#         for cmd in self.cmdline():
+#             string += " \\\n    ".join(cmd.split()) + "\n"
+#         return string
 
-    def _get_intended_sefmaps(self):
-        """
-        search for IntendedFor field from sidecar json to determine
-        appropriate field map pair, else give the first spin echo pair.
-        :return: pair of spin echo filenames, positive then negative
-        """
-        intended_idx = {}
-        for direction in ["positive", "negative"]:
-            for idx, sefm in enumerate(self.config.get_bids("fmap_metadata", direction)):
-                intended_targets = sefm.get("IntendedFor", [])
-                if get_relpath(self.kwargs["fmritcs"]) in " ".join(intended_targets):
-                    intended_idx[direction] = idx
-                    break
-            else:
-                if idx != 1:
-                    print(
-                        "WARNING: the intended %s spin echo for anatomical "
-                        "distortion correction is not explicitly defined in "
-                        "the sidecar json." % direction
-                    )
-                intended_idx[direction] = 0
+#     def _get_intended_sefmaps(self):
+#         """
+#         search for IntendedFor field from sidecar json to determine
+#         appropriate field map pair, else give the first spin echo pair.
+#         :return: pair of spin echo filenames, positive then negative
+#         """
+#         intended_idx = {}
+#         for direction in ["positive", "negative"]:
+#             for idx, sefm in enumerate(self.config.get_bids("fmap_metadata", direction)):
+#                 intended_targets = sefm.get("IntendedFor", [])
+#                 if get_relpath(self.kwargs["fmritcs"]) in " ".join(intended_targets):
+#                     intended_idx[direction] = idx
+#                     break
+#             else:
+#                 if idx != 1:
+#                     print(
+#                         "WARNING: the intended %s spin echo for anatomical "
+#                         "distortion correction is not explicitly defined in "
+#                         "the sidecar json." % direction
+#                     )
+#                 intended_idx[direction] = 0
 
-        return self.config.get_bids("fmap", "positive", intended_idx["positive"]), self.config.get_bids(
-            "fmap", "negative", intended_idx["negative"]
-        )
+#         return self.config.get_bids("fmap", "positive", intended_idx["positive"]), self.config.get_bids(
+#             "fmap", "negative", intended_idx["negative"]
+#         )
 
-    def set_registration_assist(self, moving, reference):
-        self.kwargs["regast_moving"] = moving
-        self.kwargs["regast_reference"] = reference
-        self.deactivate_parallel_execution()
+#     def set_registration_assist(self, moving, reference):
+#         self.kwargs["regast_moving"] = moving
+#         self.kwargs["regast_reference"] = reference
+#         self.deactivate_parallel_execution()
 
-    @property
-    def args(self):
-        fmri_data = sorted(self.config.get_bids("func"), key=lambda x: (int("_ce-" in x), x))
-        for fmri, meta in zip(fmri_data, self.config.get_bids("func_metadata")):
-            # set ts parameters
-            self.kwargs["fmritcs"] = fmri
-            self.kwargs["fmriname"] = get_fmriname(fmri)
-            self.kwargs["fmriscout"] = None  # not implemented
-            self.kwargs["seunwarpdir"] = ijk_to_xyz(meta["PhaseEncodingDirection"])
-            if self.kwargs["dcmethod"] == "TOPUP":
-                self.kwargs["sephasepos"], self.kwargs["sephaseneg"] = self._get_intended_sefmaps()
-            else:
-                self.kwargs["sephasepos"] = self.kwargs["sephaseneg"] = None
-            ce = get_contrast_agent(fmri)
-            if ce:
-                self.kwargs["contrastagent"] = "true"
-            else:
-                self.kwargs["contrastagent"] = "false"
+#     @property
+#     def args(self):
+#         fmri_data = sorted(self.config.get_bids("func"), key=lambda x: (int("_ce-" in x), x))
+#         for fmri, meta in zip(fmri_data, self.config.get_bids("func_metadata")):
+#             # set ts parameters
+#             self.kwargs["fmritcs"] = fmri
+#             self.kwargs["fmriname"] = get_fmriname(fmri)
+#             self.kwargs["fmriscout"] = None  # not implemented
+#             self.kwargs["seunwarpdir"] = ijk_to_xyz(meta["PhaseEncodingDirection"])
+#             if self.kwargs["dcmethod"] == "TOPUP":
+#                 self.kwargs["sephasepos"], self.kwargs["sephaseneg"] = self._get_intended_sefmaps()
+#             else:
+#                 self.kwargs["sephasepos"] = self.kwargs["sephaseneg"] = None
+#             ce = get_contrast_agent(fmri)
+#             if ce:
+#                 self.kwargs["contrastagent"] = "true"
+#             else:
+#                 self.kwargs["contrastagent"] = "false"
 
-            if self.kwargs.get("regast_moving", None) == self.kwargs["fmriname"]:
-                self.kwargs["prevreg"] = self.kwargs["regast_reference"]
-            else:
-                self.kwargs["prevreg"] = ""
+#             if self.kwargs.get("regast_moving", None) == self.kwargs["fmriname"]:
+#                 self.kwargs["prevreg"] = self.kwargs["regast_reference"]
+#             else:
+#                 self.kwargs["prevreg"] = ""
 
-            # None to NONE
-            kw = {k: (v if v is not None else "NONE") for k, v in self.kwargs.items()}
-            yield self.spec.format(**kw)
+#             # None to NONE
+#             kw = {k: (v if v is not None else "NONE") for k, v in self.kwargs.items()}
+#             yield self.spec.format(**kw)
 
-    def cmdline(self):
-        script = self.script.format(**os.environ)
-        for argset in self.args:
-            yield " ".join((script, argset))
+#     def cmdline(self):
+#         script = self.script.format(**os.environ)
+#         for argset in self.args:
+#             yield " ".join((script, argset))
 
 
 class FMRISurface(Stage):

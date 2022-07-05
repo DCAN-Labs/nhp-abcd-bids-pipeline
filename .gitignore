@@ -160,4 +160,4 @@ cython_debug/
 #.idea/
 
 # ignore templates directory
-dcan-macaque-pipeline/global/templates/
+dcan_macaque_pipeline/global/templates/

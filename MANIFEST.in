@@ -1,0 +1,4 @@
+include nhp_abcd/VERSION
+include nhp_abcd/pipelines/outputs.json
+prune scripts/dcan_bold_processing/*
+prune scripts/dcan_macaque_pipeline/*

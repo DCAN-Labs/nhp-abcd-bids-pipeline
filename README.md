@@ -275,14 +275,14 @@ the nhp-abcd-bids-pipeline Dockerfile.
 
 See the [pipeline stages summary doc](nhp-abcd-bids-pipeline/blob/master/dcan-macaque-pipeline_v0_1_0_stages_summary.pdf) for key inputs and outputs of each stage, plus tips for reviewing and troubleshooting output.
 
-![flowchart-PreliminaryMasking](flowchart_png/nhp_flowchart_0_1_0_premask.png)
-![flowchart-PreFreeSurfer](flowchart_png/nhp_flowchart_0_1_0_prefs.png)
-![flowchart-FreeSurfer](flowchart_png/nhp_flowchart_0_1_0_fs.png)
-![flowchart-PostFreeSurfer](flowchart_png/nhp_flowchart_0_1_0_postfs.png)
-![flowchart-FMRIVolume](flowchart_png/nhp_flowchart_0_1_0_fmrivol.png)
-![flowchart-FMRISurface](flowchart_png/nhp_flowchart_0_1_0_fmrisurf.png)
-![flowchart-DCANBOLDProcessing](flowchart_png/nhp_flowchart_0_1_1_dbp.png)
-![flowchart-ExecutiveSummary](flowchart_png/nhp_flowchart_0_1_0_execsum.png)
+![flowchart-PreliminaryMasking](resources/flowcharts/nhp_flowchart_0_1_0_premask.png)
+![flowchart-PreFreeSurfer](resources/flowcharts/nhp_flowchart_0_1_0_prefs.png)
+![flowchart-FreeSurfer](resources/flowcharts/nhp_flowchart_0_1_0_fs.png)
+![flowchart-PostFreeSurfer](resources/flowcharts/nhp_flowchart_0_1_0_postfs.png)
+![flowchart-FMRIVolume](resources/flowcharts/nhp_flowchart_0_1_0_fmrivol.png)
+![flowchart-FMRISurface](resources/flowcharts/nhp_flowchart_0_1_0_fmrisurf.png)
+![flowchart-DCANBOLDProcessing](resources/flowcharts/nhp_flowchart_0_1_1_dbp.png)
+![flowchart-ExecutiveSummary](resources/flowcharts/nhp_flowchart_0_1_0_execsum.png)
 
 #### Outputs
 

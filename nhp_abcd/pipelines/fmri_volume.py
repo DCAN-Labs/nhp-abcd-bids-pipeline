@@ -1,26 +1,26 @@
 import os
 import logging
-from typing import Tuple
 import shutil
+from typing import Tuple
 
 import numpy as np
 import nibabel as nib
 from memori import Stage
 from memori.helpers import create_output_path, working_directory
 from memori.pathman import PathManager
+from omni.pipelines.logging import setup_logging
+from omni.pipelines.func.align import deoblique_func
 from omni.pipelines.preprocessing import synthunwarp
 from omni.interfaces.common import run_process
 from omni.interfaces.ants import N4BiasFieldCorrection
-from omni.pipelines.logging import setup_logging
-from omni.pipelines.func.align import deoblique_func
-from omni.preprocessing import normalization
 from omni.affine import deoblique
 from omni.io import convert_affine_file
+from omni.preprocessing import normalization
 from omni.warp import convert_warp
 
-from shim import DCANPipeline
-from pipelines import ParameterSettings
-from helpers import get_contrast_agent, get_fmriname, ijk_to_xyz, get_relpath
+from nhp_abcd.shim import DCANPipeline
+from nhp_abcd.helpers import get_contrast_agent, get_fmriname, ijk_to_xyz, get_relpath
+from .pipelines import ParameterSettings
 
 
 # get environment variables to HCP pipeline stuff
@@ -31,6 +31,9 @@ if not all([pipeline_scripts, global_scripts]):
     raise Exception("HCP pipeline environment variables not set!")
 
 # Global Naming Conventions
+# These were copied over from the original shell script
+# TODO: don't use these, instead we want to pass information
+# to each stage of the pipeline through non-global variable means
 T1wImage = "T1w_acpc_dc"
 T1wBrainMask = "T1w_acpc_brain_mask"
 T1wRestoreImage = "T1w_acpc_dc_restore"
@@ -946,6 +949,13 @@ class FMRIVolume(DCANPipeline):
         )
 
     def run(self, number_of_threads=1):
+        """Run the functional volume processing pipeline.
+
+        Parameters
+        ==========
+        number_of_threads : int
+            Number of threads to use for the pipeline
+        """
         # get the fmri runs from the session config
         fmri_runs = sorted(self.config.get_bids("func"), key=lambda x: (int("_ce-" in x), x))
         fmri_metadata = [meta for meta in self.config.get_bids("func_metadata")]
@@ -1070,9 +1080,7 @@ class FMRIVolume(DCANPipeline):
                 shutil.copy2(results["scout_atlas_norm"], f"{results_folder}/{fmriname}_SBRef.nii.gz")
                 shutil.copy2(results["movement_regressor"] + ".txt", f"{results_folder}/{MovementRegressor}.txt")
                 shutil.copy2(f"{fmriname}/{MovementRegressor}_dt.txt", f"{results_folder}/{MovementRegressor}_dt.txt")
-                shutil.copy2(
-                    results["jacobian_out"], f"{results_folder}/{fmriname}_{JacobianOut}.nii.gz"
-                )
+                shutil.copy2(results["jacobian_out"], f"{results_folder}/{fmriname}_{JacobianOut}.nii.gz")
 
                 # Add stuff for RMS
                 shutil.copy2(f"{fmriname}/Movement_RelativeRMS.txt", f"{results_folder}/Movement_RelativeRMS.txt")

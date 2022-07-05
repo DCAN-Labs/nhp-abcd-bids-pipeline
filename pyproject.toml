@@ -1,7 +1,33 @@
+[project]
+name = "nhp-abcd"
+readme = "README.md"
+requires-python = ">=3.7"
+license = { text = "BSD 3-Clause License" }
+authors = []
+keywords = ["neuroimaging", "MRI", "non-human primate", "macaque"]
+classifiers = [
+    "License :: OSI Approved :: BSD License",
+    "Programming Language :: Python :: 3",
+    "Topic :: Scientific/Engineering :: Image Processing",
+]
+urls = { github = "https://github.com/DCAN-Labs/nhp-abcd-bids-pipeline" }
+dynamic = ["version", "entry-points"]
+dependencies = ["memori >= 0.1.8", "nibabel >= 3.2.2", "numpy >= 1.22.4", "pybids >= 0.14.0"]
+
+[project.optional-dependencies]
+dev = ["black >= 22.3.0"]
+
 [build-system]
 requires = ["setuptools", "wheel"]
 build-backend = "setuptools.build_meta"
 
+[tool.setuptools]
+zip-safe = true
+
+[tool.setuptools.packages.find]
+namespaces = false
+
 [tool.black]
 line-length = 120
 target-version = ['py37', 'py38', 'py39', 'py310']
+exclude = "dcan_bold_processing|dcan_macaque_pipeline"

@@ -1,6 +1,5 @@
 import os
 import re
-
 from itertools import product
 
 from bids.layout import BIDSLayout

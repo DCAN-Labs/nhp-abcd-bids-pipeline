@@ -5,10 +5,9 @@ ENV DEBIAN_FRONTEND=noninteractive
 WORKDIR /opt
 # install dependencies
 RUN apt-get update && apt-get install -y build-essential gpg wget m4 libglu1-mesa libncursesw5-dev libgdbm-dev \
-    gfortran python python-pip libz-dev libreadline-dev libbz2-dev \
-    libopenblas-dev liblapack-dev libhdf5-dev libfftw3-dev git graphviz patchelf libssl-dev libsqlite3-dev uuid-dev \
-    git-lfs curl bc dc libgl1-mesa-dev unzip libgomp1 libxmu6 libxt6 tcsh libffi-dev lzma-dev liblzma-dev tk-dev \
-    libdb-dev && \
+    gfortran python python-pip libz-dev libreadline-dev libbz2-dev libopenblas-dev liblapack-dev libhdf5-dev \
+    libfftw3-dev git graphviz patchelf libssl-dev libsqlite3-dev uuid-dev git-lfs curl bc dc libgl1-mesa-dev \
+    unzip libgomp1 libxmu6 libxt6 tcsh libffi-dev lzma-dev liblzma-dev tk-dev libdb-dev && \
     # install cmake
     wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null \
     | gpg --dearmor - | tee /usr/share/keyrings/kitware-archive-keyring.gpg >/dev/null && \
@@ -109,7 +108,7 @@ RUN mkdir /opt/dcan-tools && cd /opt/dcan-tools && \
     git clone -b v1.3.0 --single-branch --depth 1 https://github.com/DCAN-Labs/file-mapper.git filemapper && \
     printf "{\n  \"VERSION\": \"development\"\n}\n" > /opt/dcan-tools/version.json
 # dcan bold processing
-COPY ["dcan_bold_processing", "/opt/dcan-tools/dcan_bold_proc"]
+COPY ["scripts/dcan_bold_processing", "/opt/dcan-tools/dcan_bold_proc"]
 
 ######################################################################################################################
 
@@ -133,12 +132,8 @@ COPY --from=dcan-tools /opt/dcan-tools /opt/dcan-tools
 # alias python3.9 to python3
 RUN ln -s /usr/local/bin/python3.9 /usr/bin/python3
 
-# install python stuff
-# this should be replaced with pyproject.toml
-COPY ["requirements.txt", "/requirements.txt"]
-RUN pip2 install pyyaml numpy pillow && \
-    python3 -m pip install -r "/requirements.txt" && \
-    python3 -m pip install pyyaml numpy pillow pandas jupyter pybids duecredit
+# install python2 stuff
+RUN pip2 install pyyaml numpy pillow
 
 # adjust libnetcdf copy so that it is a symlink and patch mris_make_surfaces to use a non-specific version of netcdf
 RUN rm -rf /usr/local/lib/libnetcdf.so.13 && ln -s /usr/local/lib/libnetcdf.so /usr/local/lib/libnetcdf.so.13 && \
@@ -150,9 +145,12 @@ RUN rm /usr/bin/perl && ln -s /opt/perl/bin/perl /usr/bin/perl
 # Set Connectome Workbench Binary Directory
 RUN ln -s /opt/workbench/bin_linux64/wb_command /opt/workbench/wb_command && \
     mkdir -p /root/.config/brainvis.wustl.edu /.config/brainvis.wustl.edu /opt/workbench/brainvis.wustl.edu && \
-    printf "[General]\nloggingLevel=INFO\nvolumeAxesCrosshairs=false\nvolumeAxesLabels=false\n" > /opt/workbench/brainvis.wustl.edu/Caret7.conf && \
-    printf "[General]\nloggingLevel=INFO\nvolumeAxesCrosshairs=false\nvolumeAxesLabels=false\n" > /root/.config/brainvis.wustl.edu/Caret7.conf && \
-    printf "[General]\nloggingLevel=INFO\nvolumeAxesCrosshairs=false\nvolumeAxesLabels=false\n" > /.config/brainvis.wustl.edu/Caret7.conf && \
+    printf "[General]\nloggingLevel=INFO\nvolumeAxesCrosshairs=false\nvolumeAxesLabels=false\n" > \
+    /opt/workbench/brainvis.wustl.edu/Caret7.conf && \
+    printf "[General]\nloggingLevel=INFO\nvolumeAxesCrosshairs=false\nvolumeAxesLabels=false\n" > \
+    /root/.config/brainvis.wustl.edu/Caret7.conf && \
+    printf "[General]\nloggingLevel=INFO\nvolumeAxesCrosshairs=false\nvolumeAxesLabels=false\n" > \
+    /.config/brainvis.wustl.edu/Caret7.conf && \
     chmod -R 775 /root/.config /.config
 
 # setup environment variables
@@ -176,17 +174,24 @@ RUN git clone https://gitlab.com/vanandrew/omni.git && cd omni && \
     python3.9 -m pip install -e ./[extra]
 
 # copy DCAN pipeline
-COPY ["dcan-macaque-pipeline", "/opt/pipeline"]
+COPY ["scripts/dcan_macaque_pipeline", "/opt/pipeline"]
 
-# copy over app
-COPY ["app", "/app"]
+# copy over repo (without root scripts dir)
+RUN mkdir -p /opt/nhp-abcd-bids-pipeline
+COPY ["nhp_abcd", "/opt/nhp-abcd-bids-pipeline/nhp_abcd"]
+COPY ["pyproject.toml", "README.md", "LICENSE", "MANIFEST.in", \
+    "setup.cfg", "setup.py", "requirements.txt", "/opt/nhp-abcd-bids-pipeline/"]
+
+# install this repo
+RUN cd /opt/nhp-abcd-bids-pipeline && \
+    python3.9 -m pip install .
 
 # make some directories
 RUN mkdir /bids_input /output /atlases
 
 # setup ENTRYPOINT
-COPY ["./entrypoint.sh", "/entrypoint.sh"]
-COPY ["./SetupEnv.sh", "/SetupEnv.sh"]
+COPY ["docker/entrypoint.sh", "/entrypoint.sh"]
+COPY ["docker/SetupEnv.sh", "/SetupEnv.sh"]
 ENTRYPOINT ["/entrypoint.sh"]
 WORKDIR /
 CMD ["--help"]

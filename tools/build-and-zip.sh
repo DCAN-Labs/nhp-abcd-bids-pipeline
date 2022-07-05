@@ -12,4 +12,3 @@ docker save -o ${tarfile} dcanlabs/${imagename}:latest
 chmod g+rw ${tarfile}
 gzip ${tarfile}
 popd
-

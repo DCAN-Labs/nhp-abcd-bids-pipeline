@@ -23,28 +23,24 @@ NeuroImage, 62:782-90, 2012
 [6] Avants, BB et al. The Insight ToolKit image registration framework. Front
 Neuroinform. 2014 Apr 28;8:44. doi: 10.3389/fninf.2014.00044. eCollection 2014.
 """
-__version__ = "0.2.7"
 
 import argparse
 import os
 
-from helpers import read_bids_dataset, validate_license
-from pipelines import (
+from nhp_abcd import __version__
+from nhp_abcd.helpers import read_bids_dataset, validate_license
+from nhp_abcd.pipelines import (
     ParameterSettings,
     PreliminaryMasking,
     PreFreeSurfer,
     FreeSurfer,
     PostFreeSurfer,
-    # FMRIVolume,
+    FMRIVolume,
     FMRISurface,
     DCANBOLDProcessing,
     ExecutiveSummary,
     CustomClean,
 )
-from fmri_volume import FMRIVolume
-
-# debug
-# import debug
 
 
 def _cli():
@@ -519,5 +515,10 @@ def interface(
             stage.run(ncpus)
 
 
-if __name__ == "__main__":
+# for entry point script
+def main():
     _cli()
+
+
+if __name__ == "__main__":
+    main()

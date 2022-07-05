@@ -6,20 +6,20 @@
 ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ##
 import logging
 
-VERSION = '2.0.0alpha-hcp-1'
+VERSION = "2.0.0alpha-hcp-1"
 
-usage = '''
+usage = """
 gradient_unwarp infile outfile manufacturer -g <coefficient file> [optional arguments]
-'''
+"""
 
 
 # SIEMENS stuff
 siemens_cas = 14  # coefficient array size
-siemens_fovmin = -.30  # fov min in meters
-siemens_fovmax = .30  # fov max in meters
-siemens_numpoints = 60 # number of grid points in each direction
+siemens_fovmin = -0.30  # fov min in meters
+siemens_fovmax = 0.30  # fov max in meters
+siemens_numpoints = 60  # number of grid points in each direction
 # max jacobian determinant for siemens
-siemens_max_det = 10.
+siemens_max_det = 10.0
 
 
 # GE stuff
@@ -30,7 +30,7 @@ ge_resolution = 0.0075
 
 
 def get_logger():
-    log = logging.getLogger('gradunwarp')
+    log = logging.getLogger("gradunwarp")
     log.setLevel(logging.INFO)
     ch = logging.StreamHandler()
     ch.setLevel(logging.INFO)

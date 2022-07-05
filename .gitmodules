@@ -1,3 +1,3 @@
-[submodule "dcan_bold_processing"]
-	path = dcan_bold_processing
-	url = git@github.com:vanandrew/dcan_bold_processing.git
+[submodule "scripts/dcan_bold_processing"]
+	path = scripts/dcan_bold_processing
+	url = git@github.com:DCAN-Labs/dcan_bold_processing.git
