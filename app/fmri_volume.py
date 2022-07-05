@@ -1061,24 +1061,27 @@ class FMRIVolume(DCANPipeline):
                 # get results
                 results = self.results
 
+                # form path to results folder
+                results_folder = os.path.join(f"{AtlasSpaceFolder}", f"{ResultsFolder}", f"{fmriname}")
+
                 # copy results
-                os.makedirs(f"{ResultsFolder}", exist_ok=True)
-                shutil.copy2(results["func_atlas_norm"], f"{ResultsFolder}/{fmriname}.nii.gz")
-                shutil.copy2(results["scout_atlas_norm"], f"{ResultsFolder}/{fmriname}_SBRef.nii.gz")
-                shutil.copy2(results["movement_regressor"] + ".txt", f"{ResultsFolder}/{MovementRegressor}.txt")
-                shutil.copy2(f"{fmriname}/{MovementRegressor}_dt.txt", f"{ResultsFolder}/{MovementRegressor}_dt.txt")
+                os.makedirs(f"{results_folder}", exist_ok=True)
+                shutil.copy2(results["func_atlas_norm"], f"{results_folder}/{fmriname}.nii.gz")
+                shutil.copy2(results["scout_atlas_norm"], f"{results_folder}/{fmriname}_SBRef.nii.gz")
+                shutil.copy2(results["movement_regressor"] + ".txt", f"{results_folder}/{MovementRegressor}.txt")
+                shutil.copy2(f"{fmriname}/{MovementRegressor}_dt.txt", f"{results_folder}/{MovementRegressor}_dt.txt")
                 shutil.copy2(
-                    results["jacobian_out"], f"{ResultsFolder}/{fmriname}_{JacobianOut}.nii.gz"
+                    results["jacobian_out"], f"{results_folder}/{fmriname}_{JacobianOut}.nii.gz"
                 )
 
                 # Add stuff for RMS
-                shutil.copy2(f"{fmriname}/Movement_RelativeRMS.txt", f"{ResultsFolder}/Movement_RelativeRMS.txt")
-                shutil.copy2(f"{fmriname}/Movement_AbsoluteRMS.txt", f"{ResultsFolder}/Movement_AbsoluteRMS.txt")
+                shutil.copy2(f"{fmriname}/Movement_RelativeRMS.txt", f"{results_folder}/Movement_RelativeRMS.txt")
+                shutil.copy2(f"{fmriname}/Movement_AbsoluteRMS.txt", f"{results_folder}/Movement_AbsoluteRMS.txt")
                 shutil.copy2(
-                    f"{fmriname}/Movement_RelativeRMS_mean.txt", f"{ResultsFolder}/Movement_RelativeRMS_mean.txt"
+                    f"{fmriname}/Movement_RelativeRMS_mean.txt", f"{results_folder}/Movement_RelativeRMS_mean.txt"
                 )
                 shutil.copy2(
-                    f"{fmriname}/Movement_AbsoluteRMS_mean.txt", f"{ResultsFolder}/Movement_AbsoluteRMS_mean.txt"
+                    f"{fmriname}/Movement_AbsoluteRMS_mean.txt", f"{results_folder}/Movement_AbsoluteRMS_mean.txt"
                 )
 
     def _get_intended_sefmaps(self, fmri: str) -> Tuple[str, str]:
