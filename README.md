@@ -6,6 +6,30 @@ This software takes a BIDS folder as input and determines parameters for the
 DCAN Labs' modified HCP pipeline, calling upon the proper code to run the
 subject(s).
 
+## Building the image
+To build the image, you need to clone this repo and initialize the submodules:
+```{bash}
+git clone git@github.com:DCAN-Labs/nhp-abcd-bids-pipeline.git
+cd nhp-abcd-bids-pipeline
+git submodule update --init
+```
+Once you have done this, you will also need to download the
+template files. You can do this with the convenience script in the `tools` directory:
+```{bash}
+./tools/download-templates.sh
+```
+When this script is done, you can verify that the templates have been downloaded by checking for the
+existence of the `templates` folder under `scripts/dcan_macaque_pipeline/global/templates`.
+
+Building the docker image can be done
+by running `docker build` in the root project directory. To enable the multi-stage build specified in the `Dockerfile` you can set `DOCKER_BUILDKIT=1`:
+```{bash}
+DOCKER_BUILDKIT=1 docker build . -t DCAN-Labs
+/
+nhp-abcd-bids-pipeline:[tag]
+```
+where `[tag]` is an optional tag to give the image.
+
 ## Using Docker
 Before running, you will need to load the image onto your Docker service by
 running the following command:
@@ -275,14 +299,14 @@ the nhp-abcd-bids-pipeline Dockerfile.
 
 See the [pipeline stages summary doc](nhp-abcd-bids-pipeline/blob/master/dcan-macaque-pipeline_v0_1_0_stages_summary.pdf) for key inputs and outputs of each stage, plus tips for reviewing and troubleshooting output.
 
-![flowchart-PreliminaryMasking](flowchart_png/nhp_flowchart_0_1_0_premask.png)
-![flowchart-PreFreeSurfer](flowchart_png/nhp_flowchart_0_1_0_prefs.png)
-![flowchart-FreeSurfer](flowchart_png/nhp_flowchart_0_1_0_fs.png)
-![flowchart-PostFreeSurfer](flowchart_png/nhp_flowchart_0_1_0_postfs.png)
-![flowchart-FMRIVolume](flowchart_png/nhp_flowchart_0_1_0_fmrivol.png)
-![flowchart-FMRISurface](flowchart_png/nhp_flowchart_0_1_0_fmrisurf.png)
-![flowchart-DCANBOLDProcessing](flowchart_png/nhp_flowchart_0_1_1_dbp.png)
-![flowchart-ExecutiveSummary](flowchart_png/nhp_flowchart_0_1_0_execsum.png)
+![flowchart-PreliminaryMasking](resources/flowcharts/nhp_flowchart_0_1_0_premask.png)
+![flowchart-PreFreeSurfer](resources/flowcharts/nhp_flowchart_0_1_0_prefs.png)
+![flowchart-FreeSurfer](resources/flowcharts/nhp_flowchart_0_1_0_fs.png)
+![flowchart-PostFreeSurfer](resources/flowcharts/nhp_flowchart_0_1_0_postfs.png)
+![flowchart-FMRIVolume](resources/flowcharts/nhp_flowchart_0_1_0_fmrivol.png)
+![flowchart-FMRISurface](resources/flowcharts/nhp_flowchart_0_1_0_fmrisurf.png)
+![flowchart-DCANBOLDProcessing](resources/flowcharts/nhp_flowchart_0_1_1_dbp.png)
+![flowchart-ExecutiveSummary](resources/flowcharts/nhp_flowchart_0_1_0_execsum.png)
 
 #### Outputs
 
