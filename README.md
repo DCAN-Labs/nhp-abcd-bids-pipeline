@@ -6,6 +6,30 @@ This software takes a BIDS folder as input and determines parameters for the
 DCAN Labs' modified HCP pipeline, calling upon the proper code to run the
 subject(s).
 
+## Building the image
+To build the image, you need to clone this repo and initialize the submodules:
+```{bash}
+git clone git@github.com:DCAN-Labs/nhp-abcd-bids-pipeline.git
+cd nhp-abcd-bids-pipeline
+git submodule update --init
+```
+Once you have done this, you will also need to download the
+template files. You can do this with the convenience script in the `tools` directory:
+```{bash}
+./tools/download-templates.sh
+```
+When this script is done, you can verify that the templates have been downloaded by checking for the
+existence of the `templates` folder under `scripts/dcan_macaque_pipeline/global/templates`.
+
+Building the docker image can be done
+by running `docker build` in the root project directory. To enable the multi-stage build specified in the `Dockerfile` you can set `DOCKER_BUILDKIT=1`:
+```{bash}
+DOCKER_BUILDKIT=1 docker build . -t DCAN-Labs
+/
+nhp-abcd-bids-pipeline:[tag]
+```
+where `[tag]` is an optional tag to give the image.
+
 ## Using Docker
 Before running, you will need to load the image onto your Docker service by
 running the following command:
