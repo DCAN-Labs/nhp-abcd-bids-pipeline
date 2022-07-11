@@ -190,8 +190,8 @@ RUN cd /opt/nhp-abcd-bids-pipeline && \
 RUN mkdir /bids_input /output /atlases
 
 # setup ENTRYPOINT
-COPY ["docker/entrypoint.sh", "/entrypoint.sh"]
-COPY ["docker/SetupEnv.sh", "/SetupEnv.sh"]
+COPY ["scripts/entrypoint.sh", "/entrypoint.sh"]
+COPY ["scripts/SetupEnv.sh", "/SetupEnv.sh"]
 ENTRYPOINT ["/entrypoint.sh"]
 WORKDIR /
 CMD ["--help"]

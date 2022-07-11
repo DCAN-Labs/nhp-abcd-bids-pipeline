@@ -159,5 +159,6 @@ cython_debug/
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 #.idea/
 
-# ignore templates directory
-dcan_macaque_pipeline/global/templates/
+# ignore templates/templates directory
+scripts/dcan_macaque_pipeline/global/templates.tar.gz
+scripts/dcan_macaque_pipeline/global/templates/
