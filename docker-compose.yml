@@ -1,0 +1,17 @@
+version: "3.9"
+
+services:
+  circleci:
+    image: circleci/runner:launch-agent
+    container_name: circleci-runner
+    volumes:
+      - type: bind
+        source: /var/run/docker.sock
+        target: /var/run/docker.sock
+        read_only: true
+      - type: bind
+        source: ${NHP_DATA_MOUNTPOINT}
+        target: /mnt/data/
+    environment:
+      - CIRCLECI_API_TOKEN
+    restart: always
