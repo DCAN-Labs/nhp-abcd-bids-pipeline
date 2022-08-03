@@ -14,6 +14,7 @@ jobs:
       - checkout
       - run:
           command: |
+            ./tools/download-templates.sh
             export DOCKER_BUILDKIT=1
             sudo -E docker build . -t vanandrew/nhp-abcd-bids-pipeline -q
             sudo docker system prune -f
