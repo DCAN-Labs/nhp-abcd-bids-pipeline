@@ -1,27 +1,29 @@
 version: 2.1
 workflows:
-  testing:
+  build-and-run:
     jobs:
-      - runner-test
-      - nhp-abcd
+      - build
+      - run:
+          requires:
+            - build
 jobs:
-  runner-test:
+  build:
     machine: true
     resource_class: vanandrew/linux
     steps:
-      - run: echo "Hi I'm on Runners!"
-  nhp-abcd:
+      - checkout
+      - run:
+          command: |
+            export DOCKER_BUILDKIT=1
+            sudo -E docker build . -t vanandrew/nhp-abcd-bids-pipeline -q
+            sudo docker system prune -f
+  run:
     machine: true
     resource_class: vanandrew/linux
     steps:
       - run:
           command: |
-            ls /mnt/data
-            sudo apt-get update
-            sudo apt-get install -y ca-certificates curl gnupg lsb-release
-            sudo mkdir -p /etc/apt/keyrings
-            sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
-            sudo echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
-            sudo apt-get update
-            sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin
+            ls /data
+            ls /output
             sudo docker ps -a
+            
