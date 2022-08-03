@@ -1,0 +1,20 @@
+[nhp-abcd-bids-pipeline]
+subject_list = [ "Daphne",]
+collect = false
+ncpus = 1
+freesurfer_license = "/data/license.txt"
+bandstop = [ 11.0, 19.0,]
+max_cortical_thickness = 5
+norm_gm_std_dev_scale = 0.5
+norm_wm_std_dev_scale = 0.5
+norm_csf_std_dev_scale = 0.5
+make_white_from_norm_t1 = true
+single_pass_pial = false
+t1_brain_mask = "/data/dcan_macaque_T1w_masks/sub-Daphne_ses-20210914NORDIC_T1w_pre_mask_dilM_edit.nii.gz"
+t1_reg_method = "ANTS_NO_INTERMEDIATE"
+check_outputs_only = false
+print = false
+ignore_expected_outputs = false
+multi_template_dir = "/opt/pipeline/global/templates/JointLabelCouncil"
+norm_method = "ROI_IPS"
+skip_synth = false
