@@ -2,7 +2,7 @@ version: "3.9"
 
 services:
   circleci:
-    image: circleci/runner:launch-agent
+    image: vanandrew/circleci-runner:latest
     container_name: circleci-runner
     volumes:
       - type: bind
@@ -11,7 +11,11 @@ services:
         read_only: true
       - type: bind
         source: ${NHP_DATA_MOUNTPOINT}
-        target: /mnt/data/
+        target: /data
+        read_only: true
+      - type: bind
+        source: ${NHP_WRITABLE_MOUNTPOINT}
+        target: /output
     environment:
       - CIRCLECI_API_TOKEN
     restart: always
