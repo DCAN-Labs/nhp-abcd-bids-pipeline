@@ -169,9 +169,7 @@ ENV MSMBINDIR=/opt/msm/Ubuntu
 ENV OMP_NUM_THREADS=8 SCRATCHDIR=/tmp/scratch ITK_GLOBAL_DEFAULT_NUMBER_OF_THREADS=8 TMPDIR=/tmp
 
 # install omni
-RUN git clone https://gitlab.com/vanandrew/omni.git && cd omni && \
-    git checkout 115ae8786ae000518432bbdf5aab2dbd4abc6ef0 && \
-    python3.9 -m pip install -e ./[extra]
+RUN python3.9 -m pip install omnineuro==2022.8.1
 
 # copy DCAN pipeline
 COPY ["scripts/dcan_macaque_pipeline", "/opt/pipeline"]
