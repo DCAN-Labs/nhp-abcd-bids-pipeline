@@ -233,6 +233,7 @@ def synth_distortion_correction(
     warpfield_afni_ab: str,
     anat_2_func_xfm_omni: str,
     fmap_skip: bool = False,
+    skip_synth: bool = False,
 ) -> str:
     """Synth Distortion Correction.
 
@@ -260,6 +261,8 @@ def synth_distortion_correction(
         Anatomical to functional transform in omni format.
     fmap_skip : bool
         skip distortion correction, returning previous transform
+    skip_synth : bool
+        skips synth distortion correction, returning topup transform
 
     Returns
     -------
@@ -280,47 +283,63 @@ def synth_distortion_correction(
     if fmap_skip:
         return func_2_anat_transform, jacobian_anat
 
-    # run Synth unwarping
-    results = synthunwarp(
-        output_path=os.path.join(output_path, "SynthOutput"),
-        t1_debias=t1_nm,
-        t2_debias=t2_nm,
-        anat_bet_mask=anat_brain_mask,
-        anat_eye_mask=None,
-        ref_epi=scout_debias_ab,
-        ref_epi_bet_mask=func_brain_mask_ab,
-        epi=func_nm_ab,
-        bandwidth=4,
-        resample_resolution=0.5,
-        resolution_pyramid=[0.5],
-        dilation_size=30,
-        skip_synthtarget_affine=True,
-        synthtarget_max_iterations=[100],
-        synthtarget_err_tol=[5e-4],
-        synthtarget_step_size=[1e-3],
-        distortion_correction_smoothing="0x0",
-        distortion_correction_shrink_factors="2x1",
-        distortion_correction_step_size=[1.5, 1, 0.5, 0.1],
-        noise_mask_iterations=1,
-        initial_warp_field=warpfield_afni_ab,
-        initial_affine=anat_2_func_xfm_omni,
-    )
+    # if skip synth enabled, just return the existing transform
+    if skip_synth:
+        # convert omni affine to fsl format
+        convert_affine_file(
+            func_2_anat_xfm_fsl, anat_2_func_xfm_omni, "fsl", invert=True, target=scout_debias_ab, source=t1_nm
+        )
+        # resample the warp from Autobox dims to standard dims
+        run_process(
+            f"3dresample -prefix {func_2_anat_warp_afni} "
+            f"-master {scout} -input {warpfield_afni_ab} -rmode Cu -overwrite"
+        )
+        # convert the warp to fsl format
+        convert_warp(nib.load(func_2_anat_warp_afni), "afni", "fsl", invert=False, target=nib.load(scout)).to_filename(
+            func_2_anat_warp_fsl
+        )
+    else:
+        # run Synth unwarping
+        results = synthunwarp(
+            output_path=os.path.join(output_path, "SynthOutput"),
+            t1_debias=t1_nm,
+            t2_debias=t2_nm,
+            anat_bet_mask=anat_brain_mask,
+            anat_eye_mask=None,
+            ref_epi=scout_debias_ab,
+            ref_epi_bet_mask=func_brain_mask_ab,
+            epi=func_nm_ab,
+            bandwidth=4,
+            resample_resolution=0.5,
+            resolution_pyramid=[0.5],
+            dilation_size=30,
+            skip_synthtarget_affine=True,
+            synthtarget_max_iterations=[100],
+            synthtarget_err_tol=[5e-4],
+            synthtarget_step_size=[1e-3],
+            distortion_correction_smoothing="0x0",
+            distortion_correction_shrink_factors="2x1",
+            distortion_correction_step_size=[1.5, 1, 0.5, 0.1],
+            noise_mask_iterations=1,
+            initial_warp_field=warpfield_afni_ab,
+            initial_affine=anat_2_func_xfm_omni,
+        )
 
-    # get the func to anat transforms
-    func_2_anat_xfm = results["final_epi_to_anat_affine"]
-    func_2_anat_warp = results["final_epi_to_synth_warp"]
+        # get the func to anat transforms
+        func_2_anat_xfm = results["final_epi_to_anat_affine"]
+        func_2_anat_warp = results["final_epi_to_synth_warp"]
 
-    # convert the affine into fsl format
-    convert_affine_file(func_2_anat_xfm_fsl, func_2_anat_xfm, "fsl", invert=False, target=t1_nm, source=scout)
+        # convert the affine into fsl format
+        convert_affine_file(func_2_anat_xfm_fsl, func_2_anat_xfm, "fsl", invert=False, target=t1_nm, source=scout)
 
-    # resample the warp from Autobox dims to standard dims
-    run_process(
-        f"3dresample -prefix {func_2_anat_warp_afni} -master {scout} -input {func_2_anat_warp} -rmode Cu -overwrite"
-    )
-    # convert the warp to fsl format
-    convert_warp(nib.load(func_2_anat_warp_afni), "afni", "fsl", invert=False, target=nib.load(scout)).to_filename(
-        func_2_anat_warp_fsl
-    )
+        # resample the warp from Autobox dims to standard dims
+        run_process(
+            f"3dresample -prefix {func_2_anat_warp_afni} -master {scout} -input {func_2_anat_warp} -rmode Cu -overwrite"
+        )
+        # convert the warp to fsl format
+        convert_warp(nib.load(func_2_anat_warp_afni), "afni", "fsl", invert=False, target=nib.load(scout)).to_filename(
+            func_2_anat_warp_fsl
+        )
 
     # sanity check: these two results should be the same
     run_process(
@@ -1040,6 +1059,7 @@ class FMRIVolume(DCANPipeline):
                 self.synth_stage.set_stage_arg("output_path", os.path.join("FieldMaps", fmap_prefix))
                 self.synth_stage.set_stage_arg("anat_brain_mask", os.path.join(T1wFolder, T1wBrainMask + ".nii.gz"))
                 self.synth_stage.set_stage_arg("fmap_skip", fmap_skip)
+                self.synth_stage.set_stage_arg("skip_synth", self.config.skip_synth)
 
                 # resample
                 fmrires = self.config.fmrires
