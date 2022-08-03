@@ -6,7 +6,7 @@ from typing import Tuple
 import numpy as np
 import nibabel as nib
 from memori import Stage
-from memori.helpers import create_output_path, working_directory
+from memori.helpers import create_output_path, working_directory, hashable
 from memori.pathman import PathManager
 from omni.pipelines.logging import setup_logging
 from omni.pipelines.func.align import deoblique_func
@@ -287,7 +287,7 @@ def synth_distortion_correction(
     if skip_synth:
         # convert omni affine to fsl format
         convert_affine_file(
-            func_2_anat_xfm_fsl, anat_2_func_xfm_omni, "fsl", invert=True, target=scout_debias_ab, source=t1_nm
+            func_2_anat_xfm_fsl, anat_2_func_xfm_omni, "fsl", invert=True, source=scout, target=t1_nm
         )
         # resample the warp from Autobox dims to standard dims
         run_process(
@@ -300,7 +300,7 @@ def synth_distortion_correction(
         )
     else:
         # run Synth unwarping
-        results = synthunwarp(
+        results = hashable(synthunwarp)(
             output_path=os.path.join(output_path, "SynthOutput"),
             t1_debias=t1_nm,
             t2_debias=t2_nm,
@@ -341,24 +341,24 @@ def synth_distortion_correction(
             func_2_anat_warp_fsl
         )
 
-    # sanity check: these two results should be the same
-    run_process(
-        f"3dNwarpApply "
-        f"-nwarp {func_2_anat_xfm} {func_2_anat_warp_afni} "
-        f"-prefix {afni_output} "
-        f"-master {t2_nm} "
-        f"-source {scout} "
-        "-overwrite"
-    )
-    run_process(
-        f"applywarp "
-        f"-i {scout} "
-        f"-r {t2_nm} "
-        f"-o {fsl_output} "
-        f"--postmat={func_2_anat_xfm_fsl} "
-        f"-w {func_2_anat_warp_fsl} "
-        "--interp=sinc -v"
-    )
+        # sanity check: these two results should be the same
+        run_process(
+            f"3dNwarpApply "
+            f"-nwarp {func_2_anat_xfm} {func_2_anat_warp_afni} "
+            f"-prefix {afni_output} "
+            f"-master {t2_nm} "
+            f"-source {scout} "
+            "-overwrite"
+        )
+        run_process(
+            f"applywarp "
+            f"-i {scout} "
+            f"-r {t2_nm} "
+            f"-o {fsl_output} "
+            f"--postmat={func_2_anat_xfm_fsl} "
+            f"-w {func_2_anat_warp_fsl} "
+            "--interp=sinc -v"
+        )
 
     # get the jacobian of the warp
     run_process(
@@ -380,7 +380,7 @@ def synth_distortion_correction(
 
     # combine transforms
     run_process(
-        f"convertwarp --relout --rel "
+        "convertwarp --relout --rel "
         f"-r {t2_nm} "
         f"--warp1={func_2_anat_warp_fsl} "
         f"--postmat={func_2_anat_xfm_fsl} "
