@@ -18,4 +18,6 @@ services:
         target: /output
     environment:
       - CIRCLECI_API_TOKEN
+      - NHP_DATA_MOUNTPOINT
+      - NHP_WRITABLE_MOUNTPOINT
     restart: always
