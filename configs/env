@@ -1,0 +1,4 @@
+# This file should be copied into the project root as .env
+CIRCLECI_API_TOKEN=
+NHP_DATA_MOUNTPOINT=/data/nil-bluearc/GMT/Andrew/nhp_testing/data
+NHP_WRITABLE_MOUNTPOINT=/data/nil-bluearc/GMT/Andrew/nhp_testing/output

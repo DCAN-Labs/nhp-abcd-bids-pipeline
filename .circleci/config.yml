@@ -17,6 +17,7 @@ jobs:
             export DOCKER_BUILDKIT=1
             sudo -E docker build . -t vanandrew/nhp-abcd-bids-pipeline -q
             sudo docker system prune -f
+          no_output_timeout: 3h
   run:
     machine: true
     resource_class: vanandrew/linux
@@ -25,5 +26,5 @@ jobs:
           command: |
             ls /data
             ls /output
-            sudo docker ps -a
-            
+            sudo docker run -it --rm --name baloo -v /data:/data -v /output:/output --entrypoint="ls /data" vanandrew/nhp-abcd-bids-pipeline
+          no_output_timeout: 3h
