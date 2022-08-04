@@ -20,4 +20,5 @@ services:
       - CIRCLECI_API_TOKEN
       - NHP_DATA_MOUNTPOINT
       - NHP_WRITABLE_MOUNTPOINT
+      - LAUNCH_AGENT_RUNNER_MAX_RUN_TIME
     restart: always

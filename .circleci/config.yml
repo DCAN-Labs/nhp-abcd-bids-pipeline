@@ -28,6 +28,7 @@ jobs:
             sudo docker run -it --rm --name baloo \
               -v ${NHP_DATA_MOUNTPOINT}:/data:ro \
               -v ${NHP_WRITABLE_MOUNTPOINT}:/output \
+              -v ${NHP_DATA_MOUNTPOINT}/dcan_nhp_parcellations_20210907/parcellations:/opt/dcan-tools/dcan_bold_proc/templates/parcellations:ro \
               vanandrew/nhp-abcd-bids-pipeline \
               /data/nhp_bids /output --config_file /data/configs/baloo_config.toml
-          no_output_timeout: 3h
+          no_output_timeout: 5h
