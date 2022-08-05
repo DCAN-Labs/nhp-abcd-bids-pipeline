@@ -1,0 +1,24 @@
+version: "3.9"
+
+services:
+  circleci:
+    image: vanandrew/circleci-runner:latest
+    container_name: circleci-runner
+    volumes:
+      - type: bind
+        source: /var/run/docker.sock
+        target: /var/run/docker.sock
+        read_only: true
+      - type: bind
+        source: ${NHP_DATA_MOUNTPOINT}
+        target: /data
+        read_only: true
+      - type: bind
+        source: ${NHP_WRITABLE_MOUNTPOINT}
+        target: /output
+    environment:
+      - CIRCLECI_API_TOKEN
+      - NHP_DATA_MOUNTPOINT
+      - NHP_WRITABLE_MOUNTPOINT
+      - LAUNCH_AGENT_RUNNER_MAX_RUN_TIME
+    restart: always

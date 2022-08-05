@@ -27,6 +27,8 @@ Neuroinform. 2014 Apr 28;8:44. doi: 10.3389/fninf.2014.00044. eCollection 2014.
 import argparse
 import os
 
+from omni.scripts.common.command import set_common, parse_common
+
 from nhp_abcd import __version__
 from nhp_abcd.helpers import read_bids_dataset, validate_license
 from nhp_abcd.pipelines import (
@@ -49,7 +51,9 @@ def _cli():
     :return:
     """
     parser = generate_parser()
+    set_common(parser, threads=False, version=False)
     args = parser.parse_args()
+    parse_common(args, parser)
 
     return interface(
         args.bids_dir,
@@ -79,6 +83,7 @@ def _cli():
         args.single_pass_pial,
         args.registration_assist,
         args.freesurfer_license,
+        args.skip_synth,
     )
 
 
@@ -346,6 +351,11 @@ def generate_parser(parser=None):
         "normalization methods and then restart at FreeSurfer. "
         "Default: ADULT_GM_IP.",
     )
+    parser.add_argument(
+        "--skip_synth",
+        action="store_true",
+        help="Skip Synth distortion correction step in pipeline."
+    )
 
     return parser
 
@@ -378,6 +388,7 @@ def interface(
     single_pass_pial=False,
     registration_assist=None,
     freesurfer_license=None,
+    skip_synth=False,
 ):
     """
     main application interface
@@ -458,6 +469,9 @@ def interface(
             session_spec.set_templates_dir(multi_template_dir)
         if max_cortical_thickness != 5:
             session_spec.set_max_cortical_thickness(max_cortical_thickness)
+
+        # set skip_synth flag
+        session_spec.skip_synth = skip_synth
 
         # create pipelines
         mask = PreliminaryMasking(session_spec)

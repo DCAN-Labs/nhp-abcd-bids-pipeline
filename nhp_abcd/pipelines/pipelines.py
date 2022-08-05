@@ -224,6 +224,9 @@ class ParameterSettings(object):
         # FreeSurfer single pass pial
         self.single_pass_pial = "false"
 
+        # skip_synth
+        self.skip_synth: bool = False
+
     def __getitem__(self, item):
         return self._params()[item]
 
