@@ -285,6 +285,9 @@ def synth_distortion_correction(
 
     # if skip synth enabled, just return the existing transform
     if skip_synth:
+        # Since we skip Synth, we need to ensure the SynthOutput folder is made
+        os.makedirs(os.path.join(output_path, "SynthOutput"), exist_ok=True)
+
         # convert omni affine to fsl format
         convert_affine_file(
             func_2_anat_xfm_fsl, anat_2_func_xfm_omni, "fsl", invert=True, source=scout, target=t1_nm

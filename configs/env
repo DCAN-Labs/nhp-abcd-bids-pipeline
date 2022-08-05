@@ -2,3 +2,4 @@
 CIRCLECI_API_TOKEN=
 NHP_DATA_MOUNTPOINT=/data/nil-bluearc/GMT/Andrew/nhp_testing/data
 NHP_WRITABLE_MOUNTPOINT=/data/nil-bluearc/GMT/Andrew/nhp_testing/output
+LAUNCH_AGENT_RUNNER_MAX_RUN_TIME=96h

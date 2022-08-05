@@ -11,7 +11,10 @@ jobs:
     machine: true
     resource_class: vanandrew/linux
     steps:
+      - run: ssh-keyscan github.com >> ~/.ssh/known_hosts
       - checkout
+      - run: git submodule sync
+      - run: git submodule update --init
       - run:
           command: |
             ./tools/download-templates.sh
