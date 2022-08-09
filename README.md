@@ -24,9 +24,7 @@ existence of the `templates` folder under `scripts/dcan_macaque_pipeline/global/
 Building the docker image can be done
 by running `docker build` in the root project directory. To enable the multi-stage build specified in the `Dockerfile` you can set `DOCKER_BUILDKIT=1`:
 ```{bash}
-DOCKER_BUILDKIT=1 docker build . -t DCAN-Labs
-/
-nhp-abcd-bids-pipeline:[tag]
+DOCKER_BUILDKIT=1 docker build . -t dcanumn/nhp-abcd-bids-pipeline:[tag]
 ```
 where `[tag]` is an optional tag to give the image.
 
