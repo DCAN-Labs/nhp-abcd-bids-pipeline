@@ -3,8 +3,7 @@ FROM ubuntu:18.04 as base
 ENV DEBIAN_FRONTEND=noninteractive
 # set working directory to /opt
 WORKDIR /opt
-# set bash as shell
-SHELL ["/bin/bash", "-c"]
+CMD ["/bin/bash"]
 # install dependencies
 RUN apt-get update && apt-get install -y build-essential gpg wget m4 libglu1-mesa libncursesw5-dev libgdbm-dev \
     gfortran python python-pip libz-dev libreadline-dev libbz2-dev libopenblas-dev liblapack-dev libhdf5-dev \
