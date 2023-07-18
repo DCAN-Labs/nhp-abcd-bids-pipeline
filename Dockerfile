@@ -50,7 +50,7 @@ RUN echo "Downloading Connectome Workbench" && \
 
 # install convert3d
 FROM base as convert3d
-RUN echo "Downloading Convert3d ..." &&
+RUN echo "Downloading Convert3d ..." && \
     mkdir /opt/c3d && \
     curl -sSL --retry 5 https://sourceforge.net/projects/c3d/files/c3d/1.0.0/c3d-1.0.0-Linux-x86_64.tar.gz/download \
     | tar -xzC /opt/c3d --strip-components=1
