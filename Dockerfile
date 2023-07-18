@@ -3,7 +3,6 @@ FROM ubuntu:18.04 as base
 ENV DEBIAN_FRONTEND=noninteractive
 # set working directory to /opt
 WORKDIR /opt
-CMD ["/bin/bash"]
 # install dependencies
 RUN apt-get update && apt-get install -y build-essential gpg wget m4 libglu1-mesa libncursesw5-dev libgdbm-dev \
     gfortran python python-pip libz-dev libreadline-dev libbz2-dev libopenblas-dev liblapack-dev libhdf5-dev \
@@ -23,7 +22,8 @@ RUN apt-get update && apt-get install -y build-essential gpg wget m4 libglu1-mes
 
 # install ants
 FROM base as ants
-RUN mkdir -p /opt/ANTs && cd /opt/ANTs && \
+RUN echo "Downloading ANTs ..." && \ 
+    mkdir -p /opt/ANTs && cd /opt/ANTs && \
     curl -O https://raw.githubusercontent.com/cookpa/antsInstallExample/master/installANTs.sh && \
     chmod +x /opt/ANTs/installANTs.sh && /opt/ANTs/installANTs.sh && rm installANTs.sh && \
     rm -rf /opt/ANTs/ANTs && rm -rf /opt/ANTs/build && rm -rf /opt/ANTs/install/lib && \
@@ -31,37 +31,43 @@ RUN mkdir -p /opt/ANTs && cd /opt/ANTs && \
 
 # install fsl
 FROM base as fsl
-RUN curl -O https://fsl.fmrib.ox.ac.uk/fsldownloads/fslinstaller.py && \
+RUN echo "Downloading FSL ..." && \
+    curl -O https://fsl.fmrib.ox.ac.uk/fsldownloads/fslinstaller.py && \
     python2 fslinstaller.py -d /opt/fsl && rm fslinstaller.py
 
 # install afni
 FROM base as afni
-RUN mkdir -p /opt/afni && cd /opt/afni && \
+RUN echo "Downloading AFNI ..." && \
+    mkdir -p /opt/afni && cd /opt/afni && \
     curl -O https://afni.nimh.nih.gov/pub/dist/tgz/linux_ubuntu_16_64.tgz && \
     tar xvf linux_ubuntu_16_64.tgz && rm linux_ubuntu_16_64.tgz
 
 # install connectome workbench
 FROM base as connectome-workbench
-RUN curl -O https://www.humanconnectome.org/storage/app/media/workbench/workbench-linux64-v1.5.0.zip && \
+RUN echo "Downloading Connectome Workbench" && \
+    curl -O https://www.humanconnectome.org/storage/app/media/workbench/workbench-linux64-v1.5.0.zip && \
     unzip workbench-linux64-v1.5.0.zip && rm workbench-linux64-v1.5.0.zip
 
 # install convert3d
 FROM base as convert3d
-RUN mkdir /opt/c3d && \
+RUN echo "Downloading Convert3d ..." &&
+    mkdir /opt/c3d && \
     curl -sSL --retry 5 https://sourceforge.net/projects/c3d/files/c3d/1.0.0/c3d-1.0.0-Linux-x86_64.tar.gz/download \
     | tar -xzC /opt/c3d --strip-components=1
 
 # install freesurfer
 FROM base as freesurfer
 # Make libnetcdf
-RUN curl -sSL --retry 5 https://github.com/Unidata/netcdf-c/archive/v4.6.1.tar.gz | tar zx -C /opt && \
+RUN echo "Downloading libnetcdf ..." && \
+    curl -sSL --retry 5 https://github.com/Unidata/netcdf-c/archive/v4.6.1.tar.gz | tar zx -C /opt && \
     cd /opt/netcdf-c-4.6.1/ && \
     LDFLAGS=-L/usr/local/lib && CPPFLAGS=-I/usr/local/include && ./configure --disable-netcdf-4 --disable-dap \
     --enable-shared --prefix=/usr/local && \
     make && make install && \
     rm -rf /opt/netcdf-c-4.6.1/ && ldconfig
 # Install FreeSurfer v5.3.0-HCP
-RUN curl -sSL --retry 5 https://surfer.nmr.mgh.harvard.edu/pub/dist/freesurfer/5.3.0-HCP/freesurfer-Linux-centos6_x86_64-stable-pub-v5.3.0-HCP.tar.gz \
+RUN echo "Downloading FreeSurfer ..." && \
+    curl -sSL --retry 5 https://surfer.nmr.mgh.harvard.edu/pub/dist/freesurfer/5.3.0-HCP/freesurfer-Linux-centos6_x86_64-stable-pub-v5.3.0-HCP.tar.gz \
     | tar xz -C /opt \
     --exclude='freesurfer/average/mult-comp-cor' \
     --exclude='freesurfer/lib/cuda' \
@@ -87,14 +93,16 @@ RUN mkdir /opt/mcr /opt/mcr_download && cd /opt/mcr_download && \
 
 # Install MSM Binaries
 FROM base as msm
-RUN mkdir /opt/msm && \
+RUN echo "Downloading msm ..." && \
+    mkdir /opt/msm && \
     curl -ksSL --retry 5 https://www.doc.ic.ac.uk/~ecr05/MSM_HOCR_v2/MSM_HOCR_v2-download.tgz | tar zx -C /opt && \
     mv /opt/homes/ecr05/MSM_HOCR_v2/* /opt/msm/ && \
     rm -rf /opt/homes /opt/msm/MacOSX /opt/msm/Centos
 
 # Make perl version 5.20.3
 FROM base as perl
-RUN curl -sSL --retry 5 http://www.cpan.org/src/5.0/perl-5.20.3.tar.gz | tar zx -C /opt && \
+RUN echo "Downloading perl ..." && \
+    curl -sSL --retry 5 http://www.cpan.org/src/5.0/perl-5.20.3.tar.gz | tar zx -C /opt && \
     mkdir -p /opt/perl && cd /opt/perl-5.20.3 && ./Configure -des -Dprefix=/opt/perl && make && make install
 
 # DCAN tools
