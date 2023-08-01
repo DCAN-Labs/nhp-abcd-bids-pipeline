@@ -86,8 +86,8 @@ RUN echo "Downloading FreeSurfer ..." && \
 # Install MATLAB Compiler Runtime
 FROM base as mcr
 RUN mkdir /opt/mcr /opt/mcr_download && cd /opt/mcr_download && \
-    wget https://ssd.mathworks.com/supportfiles/downloads/R2017a/deployment_files/R2017a/installers/glnxa64/MCR_R2017a_glnxa64_installer.zip \
-    && unzip MCR_R2017a_glnxa64_installer.zip \
+RUN wget https://ssd.mathworks.com/supportfiles/downloads/R2016b/deployment_files/R2016b/installers/glnxa64/MCR_R2016b_glnxa64_installer.zip \
+    && unzip MCR_R2016b_glnxa64_installer.zip \
     && ./install -agreeToLicense yes -mode silent -destinationFolder /opt/mcr \
     && rm -rf /opt/mcr_download
 
@@ -176,6 +176,9 @@ ENV C3DPATH=/opt/c3d/bin PATH=/opt/c3d/bin:$PATH
 ENV FREESURFER_HOME=/opt/freesurfer HOME=/opt SUBJECTS_DIR=/opt/freesurfer/subjects
 ENV MSMBINDIR=/opt/msm/Ubuntu
 ENV OMP_NUM_THREADS=8 SCRATCHDIR=/tmp/scratch ITK_GLOBAL_DEFAULT_NUMBER_OF_THREADS=8 TMPDIR=/tmp
+
+# Fix libstdc++6 error
+RUN ln -sf /usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.25 /opt/mcr/v91/sys/os/glnxa64/libstdc++.so.6
 
 # install omni
 RUN python3.9 -m pip install omnineuro==2022.8.1
