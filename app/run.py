@@ -360,6 +360,9 @@ def interface(bids_dir, output_dir, aseg=None, subject_list=None, session_list=N
             'ses-%s' % session['session']
         )
         session_spec = ParameterSettings(session, out_dir)
+        if not run_func:
+            anat_only = True
+            session_spec.set_anat_only(anat_only)
         if aseg is not None:
             session_spec.set_aseg(aseg)
             session_spec.set_asegdir(os.path.dirname(aseg))
