@@ -288,6 +288,18 @@ class ParameterSettings(object):
 
         self.studytemplate = study_template
         self.studytemplatebrain = study_template_brain
+
+    def set_anat_only(self, anat_only=False):
+        """
+        set ExecutiveSummary func input and DBP output paths to None, when running anat-only 
+        :param anat_only: anatomical-only flag
+        :return: None
+        """
+        if anat_only:
+            # Assume there is no 'func' data...
+            self.unproc = None
+            # and no output from dcan-bold-proc.
+            self.summary_dir = None
     
     def set_t1_reg_method(self, value):     
         # set T1w registration method to be used by PreFreeSurfer.
