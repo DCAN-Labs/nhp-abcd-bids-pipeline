@@ -55,7 +55,9 @@ def _cli():
                      args.collect,
                      args.ncpus,
                      args.stage,
+                     args.no_gsr,
                      args.bandstop,
+                     args.legacy_motion_filter,
                      args.max_cortical_thickness,
                      args.check_outputs_only,
                      args.t1_brain_mask,
@@ -309,7 +311,7 @@ def interface(bids_dir, output_dir, aseg=None, subject_list=None, session_list=N
               ignore_expected_outputs=False, multi_template_dir=None, norm_method=None,
               norm_gm_std_dev_scale=1, norm_wm_std_dev_scale=1, norm_csf_std_dev_scale=1,
               make_white_from_norm_t1=False, single_pass_pial=False, registration_assist=None,
-              freesurfer_license=None):
+              freesurfer_license=None, no_gsr=False, legacy_motion_filter=False):
     """
     main application interface
     :param bids_dir: input bids dataset see "helpers.read_bids_dataset" for
@@ -336,7 +338,9 @@ def interface(bids_dir, output_dir, aseg=None, subject_list=None, session_list=N
     :param norm_wm_std_dev_scale: scale factor for normalized WM standard deviation (relative to normalization template)
     :param norm_csf_std_dev_scale: scale factor for normalized CSF standard deviation (relative to normalization template)
     :param make_white_from_norm_t1: generate white surfaces in FreeSurfer from normalized T1w
-    :param single_pass_pial: generate pial surfaces in FreeSurfer with a single pass of mris_make_surfaces instead of default two-pass method (using surfaces generated in first pass create priors)
+    :param single_pass_pial: generate pial surfaces in FreeSurfer with a single pass of mris_make_surfaces instead of default two-pass method (using surfaces generated in first pass as priors)
+    :param no_gsr: disables global signal regression in DCANBOLDProcessing stage
+    :param legacy_motion_filter: enable for bandstop motion filter consistent with 0.2.x
     :return:
     """
 
@@ -413,6 +417,10 @@ def interface(bids_dir, output_dir, aseg=None, subject_list=None, session_list=N
 
         if bandstop_params is not None:
             boldproc.set_bandstop_filter(*bandstop_params)
+        if legacy_motion_filter:
+            boldproc.set_legacy_motion_filter(legacy_motion_filter)
+        if no_gsr:
+            boldproc.set_no_gsr(no_gsr)
 
         # determine pipeline order
         order = [mask, pre, free, post, vol, surf, boldproc, execsum]
