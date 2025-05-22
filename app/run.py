@@ -146,13 +146,26 @@ def generate_parser(parser=None):
              'FMRISurface, DCANBOLDProcessing, ExecutiveSummary'
     )
     parser.add_argument(
+        '--no-gsr', action='store_true', dest='no_gsr',
+        help='Disable global signal regression in DCANBOLDProcessing stage.'
+             'Default: False'
+    )
+    parser.add_argument(
         '--bandstop', type=float, nargs=2, metavar=('LOWER', 'UPPER'),
-        help='parameters for motion regressor band-stop filter. It is '
+        help='Parameters for motion regressor band-stop filter. It is '
              'recommended for the boundaries to match the inter-quartile '
-             'range for participant group respiratory rate (bpm), or to match '
-             'bids physio data directly [3].  These parameters are highly '
-             'recommended for data acquired with a frequency of approx. 1 Hz '
-             'or more (TR<=1.0). Default is no filter'
+             'range for participant group respiratory rate (breaths per '
+             'minute), or to match bids physio data directly [3].  These '
+             'parameters are highly recommended for data acquired with a '
+             'frequency of greater than 1 Hz (TR less than 1 second). '
+             'Default is no filter.'
+    )
+    parser.add_argument(
+        '--legacy-motion-filter', action='store_true', dest='legacy_motion_filter',
+        help='enable this to make band-stop motion filter behavior match that of '
+             'nhp-abcd-bids-pipeline 0.2.x. Specifically, if using bidirectional '
+             'filter (filtfilt), the number of filter repetitions will be doubled '
+             'compared to running without this option. ' 
     )
     parser.add_argument(
         '--max-cortical-thickness', type=int, default=5, dest='max_cortical_thickness',
