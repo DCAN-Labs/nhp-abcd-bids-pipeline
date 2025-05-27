@@ -318,13 +318,13 @@ def generate_parser(parser=None):
 
 
 def interface(bids_dir, output_dir, aseg=None, subject_list=None, session_list=None,
-              collect=False, ncpus=1, start_stage=None, bandstop_params=None,
+              collect=False, ncpus=1, start_stage=None, no_gsr=False, bandstop_params=None, legacy_motion_filter=False,
               max_cortical_thickness=5, check_only=False, t1_brain_mask=None, t2_brain_mask=None,
               study_template=None, t1_reg_method='FLIRT_FNIRT', cleaning_json=None, print_commands=False,
               ignore_expected_outputs=False, multi_template_dir=None, norm_method=None,
               norm_gm_std_dev_scale=1, norm_wm_std_dev_scale=1, norm_csf_std_dev_scale=1,
               make_white_from_norm_t1=False, single_pass_pial=False, registration_assist=None,
-              freesurfer_license=None, no_gsr=False, legacy_motion_filter=False):
+              freesurfer_license=None):
     """
     main application interface
     :param bids_dir: input bids dataset see "helpers.read_bids_dataset" for
