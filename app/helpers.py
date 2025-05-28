@@ -278,6 +278,15 @@ def ijk_to_xyz(vec, patient_orientation=None):
             '-i': 'x-', '-j': 'y-', '-k': 'z-'}
     return vmap[vec]
 
+def validate_config(bids_spec, anat_only):
+    """
+    function for preliminary data checks.
+    :param bids_spec: spec returned from get_bids_data
+    :param anat_only: if TRUE, okay to not have any func data.
+    """
+    modes = bids_spec['types']
+    assert ('T1w' in modes), 'T1w image not found!'
+    assert ('bold' in modes) or anat_only, 'Must provide functional data or specify --ignore-func or --anat-only.'
 
 def validate_license(freesurfer_license):
     fshome = os.environ['FREESURFER_HOME']
