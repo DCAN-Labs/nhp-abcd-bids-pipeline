@@ -30,7 +30,7 @@ __version__ = "0.3.0"
 import argparse
 import os
 
-from helpers import read_bids_dataset, validate_license
+from helpers import read_bids_dataset, validate_license, validate_config
 from pipelines import (ParameterSettings, PreliminaryMasking, PreFreeSurfer,
                        FreeSurfer, PostFreeSurfer, FMRIVolume, FMRISurface,
                        DCANBOLDProcessing, ExecutiveSummary, CustomClean)
@@ -377,9 +377,22 @@ def interface(bids_dir, output_dir, aseg=None, subject_list=None, session_list=N
             'ses-%s' % session['session']
         )
         session_spec = ParameterSettings(session, out_dir)
-        if not run_func:
-            anat_only = True
-            session_spec.set_anat_only(anat_only)
+        # detect available data for pipeline stages
+        
+        modes = session['types']
+        run_anat = 'T1w' in modes
+        run_func = 'bold' in modes
+        run_summary = True
+
+        anat_only = run_anat and not run_func
+      
+        validate_config(session, anat_only) 
+
+        # Set user input parameters for this session, before initializing
+        # each stage with the session specification (below).
+        session_spec = ParameterSettings(session, out_dir)
+
+        session_spec.set_anat_only(anat_only)
         if aseg is not None:
             session_spec.set_aseg(aseg)
             session_spec.set_asegdir(os.path.dirname(aseg))
@@ -415,7 +428,7 @@ def interface(bids_dir, output_dir, aseg=None, subject_list=None, session_list=N
             session_spec.set_max_cortical_thickness(max_cortical_thickness)
 
         # create pipelines
-        mask = PreliminaryMasking(session_spec)
+
         pre = PreFreeSurfer(session_spec)
         free = FreeSurfer(session_spec)
         post = PostFreeSurfer(session_spec)
@@ -423,6 +436,24 @@ def interface(bids_dir, output_dir, aseg=None, subject_list=None, session_list=N
         surf = FMRISurface(session_spec)
         boldproc = DCANBOLDProcessing(session_spec)
         execsum = ExecutiveSummary(session_spec)
+        
+        # create pipelines
+        order = []
+      
+        if run_anat:
+            mask = PreliminaryMasking(session_spec)
+            pre = PreFreeSurfer(session_spec)
+            free = FreeSurfer(session_spec)
+            post = PostFreeSurfer(session_spec)
+            order += [mask, pre, free, post]
+        if run_func:
+            vol = FMRIVolume(session_spec)
+            surf = FMRISurface(session_spec)
+            boldproc = DCANBOLDProcessing(session_spec)
+            order += [vol, surf, boldproc]
+        if run_summary:
+            execsum = ExecutiveSummary(session_spec)
+            order += [execsum]
 
         # set user parameters
         if registration_assist:
@@ -434,9 +465,6 @@ def interface(bids_dir, output_dir, aseg=None, subject_list=None, session_list=N
             boldproc.set_legacy_motion_filter(legacy_motion_filter)
         if no_gsr:
             boldproc.set_no_gsr(no_gsr)
-
-        # determine pipeline order
-        order = [mask, pre, free, post, vol, surf, boldproc, execsum]
 
         if cleaning_json:
             cclean = CustomClean(session_spec, cleaning_json)
